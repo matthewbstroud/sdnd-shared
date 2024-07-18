@@ -1,0 +1,248 @@
+{
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "<div class=\"ddb\">\n<p>For the duration, no sound can be created within or pass through a 20-foot-radius &amp;Reference[sphere]{sphere} centered on a point you choose within range. Any creature or object entirely inside the &amp;Reference[sphere]{sphere} is immune to &amp;Reference[thunder]{thunder} damage, and creatures are &amp;Reference[deafened]{deafened} while entirely inside it. Casting a spell that includes a &amp;Reference[vocal]{verbal} component is impossible there.</p>\n</div>",
+      "chat": ""
+    },
+    "source": {
+      "book": "Player’s Handbook",
+      "page": "275",
+      "license": "",
+      "custom": ""
+    },
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": "10",
+      "units": "minute"
+    },
+    "cover": null,
+    "crewed": false,
+    "target": {
+      "value": 20,
+      "units": "ft",
+      "type": "sphere",
+      "width": null,
+      "prompt": true
+    },
+    "range": {
+      "value": 120,
+      "long": null,
+      "units": "ft"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": null,
+      "recovery": "",
+      "prompt": true
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null,
+      "scale": false
+    },
+    "ability": "",
+    "actionType": "other",
+    "attack": {
+      "bonus": "",
+      "flat": false
+    },
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "summons": null,
+    "level": 2,
+    "school": "ill",
+    "properties": [
+      "vocal",
+      "somatic",
+      "ritual",
+      "concentration"
+    ],
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "name": "Silence",
+  "flags": {
+    "ddbimporter": {
+      "id": 138712,
+      "definitionId": 2251,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Silence",
+      "sources": [
+        {
+          "sourceId": 1,
+          "pageNumber": null,
+          "sourceType": 2
+        },
+        {
+          "sourceId": 2,
+          "pageNumber": 275,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Control"
+      ],
+      "version": "5.1.27",
+      "effectsApplied": true
+    },
+    "midi-qol": {
+      "removeAttackDamageButtons": "default",
+      "onUseMacroName": "[preActiveEffects]ItemMacro",
+      "forceCEOff": true
+    },
+    "midiProperties": {
+      "confirmTargets": "default",
+      "magicdam": true,
+      "magiceffect": true
+    },
+    "dae": {
+      "macro": {
+        "name": "Silence",
+        "type": "script",
+        "scope": "global",
+        "command": "if(!game.modules.get(\"ActiveAuras\")?.active) {\n  ui.notifications.error(\"ActiveAuras is not enabled\");\n  return;\n}\n\nif (args[0].macroPass === \"preActiveEffects\" || args[0].tag === \"OnUse\") {\n  return await game.modules.get(\"ActiveAuras\").api.AAHelpers.applyTemplate(args);\n}\n"
+      }
+    },
+    "limits": {
+      "sight": {
+        "hearing": {
+          "enabled": true,
+          "range": 0
+        }
+      },
+      "sound": {
+        "enabled": true,
+        "range": 0
+      }
+    },
+    "walledtemplates": {
+      "wallRestriction": "move",
+      "wallsBlock": "walled"
+    }
+  },
+  "effects": [
+    {
+      "icon": "icons/magic/perception/silhouette-stealth-shadow.webp",
+      "changes": [
+        {
+          "key": "macro.CE",
+          "mode": 0,
+          "value": "Deafened",
+          "priority": 20
+        },
+        {
+          "key": "flags.midi-qol.fail.spell.vocal",
+          "mode": 5,
+          "value": "1",
+          "priority": 50
+        },
+        {
+          "key": "system.traits.di.value",
+          "mode": 5,
+          "value": "thunder",
+          "priority": 50
+        }
+      ],
+      "duration": {
+        "seconds": 600,
+        "startTime": null,
+        "rounds": 100,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null,
+        "combat": null
+      },
+      "tint": null,
+      "transfer": false,
+      "disabled": false,
+      "flags": {
+        "dae": {
+          "transfer": false,
+          "stackable": "noneName"
+        },
+        "ddbimporter": {
+          "disabled": false
+        },
+        "midi-qol": {
+          "forceCEOff": true
+        },
+        "core": {},
+        "ActiveAuras": {
+          "isAura": true,
+          "aura": "All",
+          "radius": 20,
+          "alignment": "",
+          "type": "",
+          "ignoreSelf": false,
+          "height": false,
+          "hidden": false,
+          "onlyOnce": false,
+          "save": "",
+          "savedc": null,
+          "displayTemp": true
+        }
+      },
+      "name": "Silence",
+      "statuses": [],
+      "_id": "lBB7MWeFq8C7ut2M",
+      "description": "",
+      "origin": null,
+      "_key": "!items.effects!z38HZn1gW30ZTx8m.lBB7MWeFq8C7ut2M"
+    }
+  ],
+  "img": "icons/magic/perception/silhouette-stealth-shadow.webp",
+  "folder": "CckA9KDh0fOPelFO",
+  "ownership": {
+    "default": 0,
+    "6yhz13iFYYklKtgA": 3
+  },
+  "_stats": {
+    "systemId": "dnd5e",
+    "systemVersion": "3.1.2",
+    "coreVersion": "11.315",
+    "createdTime": 1721274673768,
+    "modifiedTime": 1721274673768,
+    "lastModifiedBy": "6yhz13iFYYklKtgA"
+  },
+  "_id": "z38HZn1gW30ZTx8m",
+  "sort": 0,
+  "_key": "!items!z38HZn1gW30ZTx8m"
+}

@@ -1,0 +1,228 @@
+{
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "<div class=\"ddb\">\n<p>You bring forth a great feast, including magnificent food and drink. The feast takes 1 hour to consume and disappears at the end of that time, and the beneficial effects don’t set in until this hour is over. Up to twelve creatures can partake of the feast.</p>\n<p>A creature that partakes of the feast gains several benefits. The creature is cured of all diseases and &amp;Reference[poison]{poison}, becomes immune to &amp;Reference[poison]{poison} and being &amp;Reference[frightened]{frightened}, and makes all &amp;Reference[wis]{Wisdom} saving throws with advantage. Its hit point maximum also increases by 2d10, and it gains the same number of hit points. These benefits last for 24 hours.</p>\n</div>",
+      "chat": ""
+    },
+    "source": {
+      "book": "Player’s Handbook",
+      "page": "250",
+      "license": "",
+      "custom": ""
+    },
+    "activation": {
+      "type": "minute",
+      "cost": 10,
+      "condition": ""
+    },
+    "duration": {
+      "value": "",
+      "units": "inst"
+    },
+    "cover": null,
+    "crewed": false,
+    "target": {
+      "value": null,
+      "units": "",
+      "type": "",
+      "width": null,
+      "prompt": true
+    },
+    "range": {
+      "value": 30,
+      "long": null,
+      "units": "ft"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": null,
+      "recovery": "",
+      "prompt": true
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null,
+      "scale": false
+    },
+    "ability": "",
+    "actionType": "util",
+    "attack": {
+      "bonus": "",
+      "flat": false
+    },
+    "chatFlavor": "[2d10 - healing] Increase Hit Point Maximum",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [
+        [
+          "2d10[healing]",
+          "healing"
+        ]
+      ],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "summons": null,
+    "level": 6,
+    "school": "con",
+    "properties": [
+      "vocal",
+      "somatic",
+      "material"
+    ],
+    "materials": {
+      "value": "a gem-encrusted bowl worth at least 1,000 gp, which the spell consumes",
+      "consumed": true,
+      "cost": 1000,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "name": "Heroes' Feast",
+  "flags": {
+    "ddbimporter": {
+      "id": 138069,
+      "definitionId": 2143,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Heroes' Feast",
+      "sources": [
+        {
+          "sourceId": 1,
+          "pageNumber": null,
+          "sourceType": 2
+        },
+        {
+          "sourceId": 2,
+          "pageNumber": 250,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Buff",
+        "Social"
+      ],
+      "version": "5.1.27",
+      "effectsApplied": true
+    },
+    "midi-qol": {
+      "removeAttackDamageButtons": "default",
+      "forceCEOff": true
+    },
+    "midiProperties": {
+      "confirmTargets": "default",
+      "magicdam": true,
+      "magiceffect": true
+    },
+    "dae": {
+      "macro": {
+        "name": "Heroes' Feast",
+        "type": "script",
+        "scope": "global",
+        "command": "const lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n\nconst amount = args[1];\n\nasync function updateHP(max, current) {\n  return targetActor.update({ \"system.attributes.hp.max\": max, \"system.attributes.hp.value\": current });\n}\n\n// Update HP and Max HP to roll formula, save result as flag\nif (args[0] === \"on\") {\n  const hpMax = targetActor.system.attributes.hp.max;\n  const hp = targetActor.system.attributes.hp.value;\n  await updateHP(hpMax + amount, hp + amount);\n  ChatMessage.create({ content: `${targetActor.name} gains ${amount} Max HP` });\n  await DAE.setFlag(targetActor, \"heroesFeastSpell\", amount);\n}\n\n// Remove Max Hp and reduce HP to max if needed\nif (args[0] === \"off\") {\n  const amountOff = await DAE.getFlag(targetActor, \"heroesFeastSpell\");\n  const hpMax = targetActor.system.attributes.hp.max;\n  const newHpMax = hpMax - amountOff;\n  const hp = targetActor.system.attributes.hp.value > newHpMax ? newHpMax : targetActor.system.attributes.hp.value;\n  await updateHP(newHpMax, hp);\n  ChatMessage.create({ content: targetActor.name + \"'s Max HP returns to normal\" });\n  DAE.unsetFlag(targetActor, \"heroesFeastSpell\");\n}\n"
+      }
+    }
+  },
+  "effects": [
+    {
+      "icon": "icons/containers/kitchenware/goblet-jeweled-red.webp",
+      "changes": [
+        {
+          "key": "system.traits.di.value",
+          "value": "poison",
+          "mode": 0,
+          "priority": 20
+        },
+        {
+          "key": "system.traits.ci.value",
+          "value": "frightened",
+          "mode": 0,
+          "priority": 20
+        },
+        {
+          "key": "system.traits.ci.value",
+          "value": "poisoned",
+          "mode": 0,
+          "priority": 20
+        },
+        {
+          "key": "macro.itemMacro",
+          "value": "@damage",
+          "mode": 0,
+          "priority": 0
+        }
+      ],
+      "duration": {
+        "seconds": null,
+        "startTime": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null,
+        "combat": null
+      },
+      "tint": null,
+      "transfer": false,
+      "disabled": false,
+      "flags": {
+        "dae": {
+          "transfer": false,
+          "stackable": "noneName"
+        },
+        "ddbimporter": {
+          "disabled": false
+        },
+        "midi-qol": {
+          "forceCEOff": true
+        },
+        "core": {}
+      },
+      "name": "Heroes' Feast",
+      "statuses": [],
+      "_id": "QTnFwZZRFFQqiP7E",
+      "description": "",
+      "origin": null,
+      "_key": "!items.effects!2X6R0B3W1sRgy6Hq.QTnFwZZRFFQqiP7E"
+    }
+  ],
+  "img": "icons/containers/kitchenware/goblet-jeweled-red.webp",
+  "folder": "e8UeRF8mmfaJRx4e",
+  "ownership": {
+    "default": 0,
+    "6yhz13iFYYklKtgA": 3
+  },
+  "_stats": {
+    "systemId": "dnd5e",
+    "systemVersion": "3.1.2",
+    "coreVersion": "11.315",
+    "createdTime": 1721274673535,
+    "modifiedTime": 1721274673535,
+    "lastModifiedBy": "6yhz13iFYYklKtgA"
+  },
+  "_id": "2X6R0B3W1sRgy6Hq",
+  "sort": 0,
+  "_key": "!items!2X6R0B3W1sRgy6Hq"
+}

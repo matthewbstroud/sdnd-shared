@@ -1,0 +1,235 @@
+{
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "<div class=\"ddb\">\n<p>You create a bonfire on ground that you can see within range. Until the spell ends, the magic bonfire fills a 5-foot &amp;Reference[cube]{cube}. Any creature in the bonfire’s space when you cast the spell must succeed on a &amp;Reference[dex]{Dexterity} saving throw or take 1d8 &amp;Reference[fire]{fire} damage. A creature must also make the saving throw when it moves into the bonfire’s space for the first time on a turn or ends its turn there.</p>\n<p>The bonfire ignites flammable objects in its area that aren’t being worn or carried.</p>\n<p>The spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th level (3d8), and 17th level (4d8).</p>\n</div>",
+      "chat": ""
+    },
+    "source": {
+      "book": "Elemental Evil Player's Companion",
+      "page": "152",
+      "license": "",
+      "custom": ""
+    },
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": "1",
+      "units": "minute"
+    },
+    "cover": null,
+    "crewed": false,
+    "target": {
+      "value": 5,
+      "units": "ft",
+      "type": "cube",
+      "width": null,
+      "prompt": true
+    },
+    "range": {
+      "value": 60,
+      "long": null,
+      "units": "ft"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": null,
+      "recovery": "",
+      "prompt": true
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null,
+      "scale": false
+    },
+    "ability": "",
+    "actionType": "save",
+    "attack": {
+      "bonus": "",
+      "flat": false
+    },
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [
+        [
+          "1d8[fire]",
+          "fire"
+        ]
+      ],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "dex",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "summons": null,
+    "level": 0,
+    "school": "con",
+    "properties": [
+      "vocal",
+      "somatic",
+      "concentration"
+    ],
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "cantrip",
+      "formula": "1d8"
+    }
+  },
+  "name": "Create Bonfire",
+  "flags": {
+    "ddbimporter": {
+      "id": 137964,
+      "definitionId": 2373,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Create Bonfire",
+      "sources": [
+        {
+          "sourceId": 4,
+          "pageNumber": 152,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Damage",
+        "Control"
+      ],
+      "version": "5.1.27",
+      "effect": {
+        "dice": "1d8[fire]",
+        "damageType": "fire",
+        "save": "dex",
+        "sequencerFile": "jb2a.flames.01.orange",
+        "sequencerScale": 2,
+        "isCantrip": true,
+        "saveOnEntry": true
+      },
+      "effectsApplied": true
+    },
+    "midi-qol": {
+      "removeAttackDamageButtons": "default",
+      "onUseMacroName": "[preActiveEffects]ItemMacro",
+      "forceCEOff": true
+    },
+    "midiProperties": {
+      "confirmTargets": "default",
+      "magicdam": true,
+      "magiceffect": true
+    },
+    "dae": {
+      "macro": {
+        "name": "Create Bonfire",
+        "type": "script",
+        "scope": "global",
+        "command": "if (!game.modules.get(\"ActiveAuras\")?.active) {\n  ui.notifications.error(\"ActiveAuras is not enabled\");\n  return;\n} else if (!game.modules.get(\"ddb-importer\")?.active) {\n  ui.notifications.error(\"ddb-importer is not enabled\");\n  return;\n}\n\nconst lastArg = args[args.length - 1];\n\nasync function rollItemDamage(targetToken, itemUuid, itemLevel) {\n  const item = await fromUuid(itemUuid);\n  const caster = item.parent;\n  const ddbEffectFlags = item.flags.ddbimporter.effect;\n  const isCantrip = ddbEffectFlags.isCantrip;\n  const damageDice = ddbEffectFlags.dice;\n  const damageType = ddbEffectFlags.damageType;\n  const saveAbility = ddbEffectFlags.save;\n  const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);\n  const scalingDiceArray = item.system.scaling.formula.split(\"d\");\n  const scalingDiceNumber = item.system.scaling.mode === \"none\"\n    ? 0\n    : itemLevel - item.system.level;\n  const upscaledDamage =  isCantrip\n    ? `${DDBImporter?.EffectHelper.getCantripDice(caster)}d${scalingDiceArray[1]}[${damageType}]`\n    : scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;\n\n  const workflowItemData = foundry.utils.duplicate(item);\n  workflowItemData.system.target = { value: 1, units: \"\", type: \"creature\" };\n  workflowItemData.system.save.ability = saveAbility;\n  workflowItemData.system.properties = DDBImporter?.EffectHelper.removeFromProperties(workflowItemData.system.properties, \"concentration\") ?? [];\n  workflowItemData.system.level = itemLevel;\n  workflowItemData.system.duration = { value: null, units: \"inst\" };\n  workflowItemData.system.target = { value: null, width: null, units: \"\", type: \"creature\" };\n  workflowItemData.system.uses = { value: null, max: \"\", per: null, recovery: \"\", autoDestroy: false };\n  workflowItemData.system.consume = { \"type\": \"\", \"target\": null, \"amount\": null };\n\n  foundry.utils.setProperty(workflowItemData, \"flags.itemacro\", {});\n  foundry.utils.setProperty(workflowItemData, \"flags.midi-qol\", {});\n  foundry.utils.setProperty(workflowItemData, \"flags.dae\", {});\n  foundry.utils.setProperty(workflowItemData, \"effects\", []);\n  delete workflowItemData._id;\n\n  const saveOnEntry = ddbEffectFlags.saveOnEntry;\n  // console.warn(\"saveOnEntry\", {ddbEffectFlags, saveOnEntry});\n  if (saveOnEntry) {\n    const entryItem = new CONFIG.Item.documentClass(workflowItemData, { parent: caster });\n    // console.warn(\"Saving item on entry\", {entryItem, targetToken});\n    const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: [targetToken.document.uuid] });\n    await MidiQOL.completeItemUse(entryItem, config, options);\n  } else {\n    const damageRoll = await new CONFIG.Dice.DamageRoll(upscaledDamage).evaluate({ async: true });\n    await MidiQOL.displayDSNForRoll(damageRoll, \"damageRoll\");\n\n    workflowItemData.name = `${workflowItemData.name}: Turn Entry Damage`;\n\n    await new MidiQOL.DamageOnlyWorkflow(\n      caster,\n      casterToken,\n      damageRoll.total,\n      damageType,\n      [targetToken],\n      damageRoll,\n      {\n        flavor: `(${CONFIG.DND5E.damageTypes[damageType].label})`,\n        itemCardId: \"new\",\n        itemData: workflowItemData,\n        isCritical: false,\n      }\n    );\n  }\n\n}\n\nif (args[0].tag === \"OnUse\" && args[0].macroPass === \"preActiveEffects\") {\n  const safeName = lastArg.itemData.name.replace(/\\s|'|\\.|’/g, \"_\");\n  const dataTracker = {\n    randomId: foundry.utils.randomID(),\n    targetUuids: lastArg.targetUuids,\n    startRound: game.combat.round,\n    startTurn: game.combat.turn,\n    spellLevel: lastArg.spellLevel,\n  };\n\n  const item = await fromUuid(lastArg.itemUuid);\n  await DAE.unsetFlag(item.actor, `${safeName}Tracker`);\n  await DAE.setFlag(item.actor, `${safeName}Tracker`, dataTracker);\n\n  const ddbEffectFlags = lastArg.item.flags.ddbimporter?.effect;\n\n  if (ddbEffectFlags) {\n    const sequencerFile = ddbEffectFlags.sequencerFile;\n    if (sequencerFile) {\n      const scale = ddbEffectFlags.sequencerScale ?? 1;\n      await DDBImporter?.EffectHelper.attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid, scale);\n    }\n    if (ddbEffectFlags.isCantrip) {\n      const cantripDice = DDBImporter?.EffectHelper.getCantripDice(lastArg.actor);\n      args[0].spellLevel = cantripDice;\n      ddbEffectFlags.cantripDice = cantripDice;\n      let newEffects = args[0].item.effects.map((effect) => {\n        effect.changes = effect.changes.map((change) => {\n          change.value = change.value.replace(\"@cantripDice\", cantripDice)\n          return change;\n        });\n        return effect;\n      });\n      args[0].item.effects = foundry.utils.duplicate(newEffects);\n      args[0].itemData.effects = foundry.utils.duplicate(newEffects);\n    }\n    const template = await fromUuid(lastArg.templateUuid);\n    await template.update({\"flags.effect\": ddbEffectFlags});\n  }\n\n  return await game.modules.get(\"ActiveAuras\").api.AAHelpers.applyTemplate(args);\n\n} else if (args[0] == \"on\") {\n  const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\\s|'|\\.|’/g, \"_\");\n  const item = await fromUuid(lastArg.efData.origin);\n  const targetItemTracker = DAE.getFlag(item.parent, `${safeName}Tracker`);\n  const originalTarget = targetItemTracker.targetUuids.includes(lastArg.tokenUuid);\n  const target = canvas.tokens.get(lastArg.tokenId);\n  const targetTokenTrackerFlag = DAE.getFlag(target.actor, `${safeName}Tracker`);\n  const targetedThisCombat = targetTokenTrackerFlag && targetItemTracker.randomId === targetTokenTrackerFlag.randomId;\n  const targetTokenTracker = targetedThisCombat\n    ? targetTokenTrackerFlag\n    : {\n      randomId: targetItemTracker.randomId,\n      round: game.combat.round,\n      turn: game.combat.turn,\n      hasLeft: false,\n    };\n\n  const castTurn = targetItemTracker.startRound === game.combat.round && targetItemTracker.startTurn === game.combat.turn;\n  const isLaterTurn = game.combat.round > targetTokenTracker.round || game.combat.turn > targetTokenTracker.turn;\n\n  // if:\n  // not cast turn, and not part of the original target\n  // AND one of the following\n  // not original template and have not yet had this effect applied this combat OR\n  // has been targeted this combat, left and re-entered effect, and is a later turn\n  if (castTurn && originalTarget) {\n    console.debug(`Token ${target.name} is part of the original target for ${item.name}`);\n  } else if (!targetedThisCombat || (targetedThisCombat && targetTokenTracker.hasLeft && isLaterTurn)){\n    console.debug(`Token ${target.name} is targeted for immediate damage with ${item.name}, using the following factors`, { originalTarget, castTurn, targetedThisCombat, targetTokenTracker, isLaterTurn });\n    targetTokenTracker.hasLeft = false;\n    await rollItemDamage(target, lastArg.efData.origin, targetItemTracker.spellLevel);\n  }\n  await DAE.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);\n} else if (args[0] == \"off\") {\n  const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\\s|'|\\.|’/g, \"_\");\n  const target = canvas.tokens.get(lastArg.tokenId);\n  const targetTokenTracker = DAE.getFlag(target.actor, `${safeName}Tracker`);\n\n  if (targetTokenTracker) {\n    targetTokenTracker.hasLeft = true;\n    targetTokenTracker.turn = game.combat.turn;\n    targetTokenTracker.round = game.combat.round;\n    await DAE.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);\n  }\n}\n"
+      }
+    }
+  },
+  "effects": [
+    {
+      "icon": "icons/magic/fire/flame-burning-campfire-rocks.webp",
+      "changes": [
+        {
+          "key": "flags.midi-qol.OverTime",
+          "mode": 0,
+          "value": "turn=end,label=Create Bonfire (End of Turn),damageRoll=(@cantripDice)d8,damageType=fire,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true",
+          "priority": 20
+        },
+        {
+          "key": "macro.itemMacro",
+          "value": "",
+          "mode": 0,
+          "priority": 20
+        }
+      ],
+      "duration": {
+        "seconds": 60,
+        "startTime": null,
+        "rounds": 10,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null,
+        "combat": null
+      },
+      "tint": null,
+      "transfer": false,
+      "disabled": false,
+      "flags": {
+        "dae": {
+          "transfer": false,
+          "stackable": "noneName"
+        },
+        "ddbimporter": {
+          "disabled": false
+        },
+        "midi-qol": {
+          "forceCEOff": true
+        },
+        "core": {},
+        "ActiveAuras": {
+          "isAura": true,
+          "aura": "All",
+          "radius": null,
+          "alignment": "",
+          "type": "",
+          "ignoreSelf": false,
+          "height": false,
+          "hidden": false,
+          "onlyOnce": false,
+          "save": "dex",
+          "savedc": null,
+          "displayTemp": true
+        }
+      },
+      "name": "Create Bonfire",
+      "statuses": [],
+      "_id": "ob6Hr9ttDyyw5X9V",
+      "description": "",
+      "origin": null,
+      "_key": "!items.effects!UR2aiACJ4sVMGv5j.ob6Hr9ttDyyw5X9V"
+    }
+  ],
+  "img": "icons/magic/fire/flame-burning-campfire-rocks.webp",
+  "folder": "e8UeRF8mmfaJRx4e",
+  "ownership": {
+    "default": 0,
+    "6yhz13iFYYklKtgA": 3
+  },
+  "_stats": {
+    "systemId": "dnd5e",
+    "systemVersion": "3.1.2",
+    "coreVersion": "11.315",
+    "createdTime": 1721274674586,
+    "modifiedTime": 1721274674586,
+    "lastModifiedBy": "6yhz13iFYYklKtgA"
+  },
+  "_id": "UR2aiACJ4sVMGv5j",
+  "sort": 0,
+  "_key": "!items!UR2aiACJ4sVMGv5j"
+}

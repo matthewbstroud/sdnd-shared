@@ -1,0 +1,208 @@
+{
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "<div class=\"ddb\">\n<p>You create a sword-shaped plane of &amp;Reference[force]{force} that hovers within range. It lasts for the duration.</p>\n<p>When the sword appears, you make a melee spell attack against a target of your choice within 5 feet of the sword. On a hit, the target takes 3d10 &amp;Reference[force]{force} damage. Until the spell ends, you can use a bonus action on each of your turns to move the sword up to 20 feet to a spot you can see and repeat this attack against the same target or a different one.</p>\n</div>",
+      "chat": ""
+    },
+    "source": {
+      "book": "Player’s Handbook",
+      "page": "262",
+      "license": "",
+      "custom": ""
+    },
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": "1",
+      "units": "minute"
+    },
+    "cover": null,
+    "crewed": false,
+    "target": {
+      "value": null,
+      "units": "",
+      "type": "",
+      "width": null,
+      "prompt": true
+    },
+    "range": {
+      "value": 60,
+      "long": null,
+      "units": "ft"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": null,
+      "recovery": "",
+      "prompt": true
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null,
+      "scale": false
+    },
+    "ability": "",
+    "actionType": "other",
+    "attack": {
+      "bonus": "",
+      "flat": false
+    },
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "summons": null,
+    "level": 7,
+    "school": "evo",
+    "properties": [
+      "vocal",
+      "somatic",
+      "material",
+      "concentration"
+    ],
+    "materials": {
+      "value": "a miniature platinum sword with a grip and pommel of copper and zinc, worth 250 gp",
+      "consumed": false,
+      "cost": 250,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "name": "Mordenkainen's Sword",
+  "flags": {
+    "ddbimporter": {
+      "id": 138520,
+      "definitionId": 2004,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Mordenkainen's Sword",
+      "sources": [
+        {
+          "sourceId": 1,
+          "pageNumber": null,
+          "sourceType": 2
+        },
+        {
+          "sourceId": 2,
+          "pageNumber": 262,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Damage"
+      ],
+      "version": "5.1.27",
+      "effectsApplied": true
+    },
+    "midi-qol": {
+      "removeAttackDamageButtons": "default",
+      "onUseMacroName": "[preTargeting]ItemMacro",
+      "forceCEOff": true
+    },
+    "midiProperties": {
+      "confirmTargets": "default",
+      "magicdam": true,
+      "magiceffect": true
+    },
+    "dae": {
+      "macro": {
+        "name": "Mordenkainen's Sword",
+        "type": "script",
+        "scope": "global",
+        "command": "if (args[0].tag === \"OnUse\" && [\"preTargeting\"].includes(args[0].macroPass)) {\n  args[0].workflow.item.system['target']['type'] = \"self\";\n  args[0].workflow.item.system.range = { value: null, units: \"self\", long: null };\n  return;\n}\n\nconst castItemName = \"Summoned Arcane Sword\";\nconst lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n\nasync function deleteTemplates(actorId) {\n  let removeTemplates = canvas.templates.placeables.filter(\n    (i) => i.flags?.ArcaneSwordRange?.ActorId === actorId\n  );\n  await canvas.scene.deleteEmbeddedDocuments(\"MeasuredTemplate\", removeTemplates.map((t) => t.id));\n}\n\n/**\n * Create Arcane Sword item in inventory\n */\nif (args[0] === \"on\") {\n  const tokenFromUuid = await fromUuid(lastArg.tokenUuid);\n  const casterToken = tokenFromUuid.data || token;\n  const DAEItem = lastArg.efData.flags.dae.itemData;\n  // draw range template\n  await canvas.scene.createEmbeddedDocuments(\"MeasuredTemplate\", [\n    {\n      t: \"circle\",\n      user: game.userId,\n      x: casterToken.x + (canvas.grid.size / 2),\n      y: casterToken.y + (canvas.grid.size / 2),\n      direction: 0,\n      distance: 60,\n      borderColor: \"#FF0000\",\n      flags: {\n        ArcaneSwordRange: {\n          ActorId: targetActor.id,\n        },\n      },\n    },\n  ]);\n\n  const templateData = {\n    t: \"rect\",\n    user: game.user.id,\n    distance: 7,\n    direction: 45,\n    x: 0,\n    y: 0,\n    flags: {\n      ArcaneSword: {\n        ActorId: targetActor.id,\n      },\n    },\n    fillColor: game.user.color,\n    texture: DAEItem.img,\n  };\n  Hooks.once(\"createMeasuredTemplate\", () => deleteTemplates(targetActor.id));\n  const doc = new CONFIG.MeasuredTemplate.documentClass(templateData, { parent: canvas.scene });\n  let template = new game.dnd5e.canvas.AbilityTemplate(doc);\n  template.actorSheet = targetActor.sheet;\n  template.drawPreview();\n\n  const castItem = targetActor.items.find((i) => i.name === castItemName && i.type === \"weapon\");\n  if (!castItem) {\n    const weaponData = {\n      name: castItemName,\n      type: \"weapon\",\n      system: {\n        quantity: 1,\n        activation: { type: \"action\", cost: 1, condition: \"\", },\n        target: { value: 1, type: \"creature\", },\n        range: { value: 5, long: null, units: \"\", },\n        ability: DAEItem.system.ability,\n        attack: {\n          bonus: DAEItem.system.attack.bonus,\n        },\n        actionType: \"msak\",\n        chatFlavor: \"\",\n        critical: null,\n        damage: { parts: [[\"3d10\", \"force\"]], versatile: \"\" },\n        type: {\n          value: \"simpleM\",\n        },\n        properties: [\"mgc\"],\n        proficient: true,\n        equipped: true,\n      },\n      flags: { ArcaneSword: targetActor.id, ddbimporter: { ignoreItemUpdate: true } },\n      img: DAEItem.img,\n    };\n\n    await targetActor.createEmbeddedDocuments(\"Item\", [weaponData]);\n    ui.notifications.notify(\"Weapon created in your inventory\");\n  }\n}\n\n// Delete Arcane Sword\nif (args[0] === \"off\") {\n  let swords = targetActor.items.filter((i) => i.flags?.ArcaneSword === targetActor.id);\n  if (swords.length > 0) await targetActor.deleteEmbeddedDocuments(\"Item\", swords.map((s) => s.id));\n  let templates = canvas.templates.placeables.filter((i) => i.flags?.ArcaneSword?.ActorId === targetActor.id);\n  if (templates.length > 0) await canvas.scene.deleteEmbeddedDocuments(\"MeasuredTemplate\", templates.map((t) => t.id));\n}\n"
+      }
+    }
+  },
+  "effects": [
+    {
+      "icon": "icons/skills/melee/sword-stuck-glowing-pink.webp",
+      "changes": [
+        {
+          "key": "macro.itemMacro",
+          "value": "",
+          "mode": 0,
+          "priority": 20
+        }
+      ],
+      "duration": {
+        "seconds": null,
+        "startTime": null,
+        "rounds": 10,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null,
+        "combat": null
+      },
+      "tint": null,
+      "transfer": false,
+      "disabled": false,
+      "flags": {
+        "dae": {
+          "transfer": false,
+          "stackable": "noneName",
+          "selfTarget": true,
+          "selfTargetAlways": true
+        },
+        "ddbimporter": {
+          "disabled": false
+        },
+        "midi-qol": {
+          "forceCEOff": true
+        },
+        "core": {}
+      },
+      "name": "Mordenkainen's Sword",
+      "statuses": [],
+      "_id": "CQsYZc9qur9v7zaG",
+      "description": "",
+      "origin": null,
+      "_key": "!items.effects!VRR6MSat1u4TnFSW.CQsYZc9qur9v7zaG"
+    }
+  ],
+  "img": "icons/skills/melee/sword-stuck-glowing-pink.webp",
+  "folder": "rkqMMY58A8Xdl9Mg",
+  "ownership": {
+    "default": 0,
+    "6yhz13iFYYklKtgA": 3
+  },
+  "_stats": {
+    "systemId": "dnd5e",
+    "systemVersion": "3.1.2",
+    "coreVersion": "11.315",
+    "createdTime": 1721274675436,
+    "modifiedTime": 1721274675436,
+    "lastModifiedBy": "6yhz13iFYYklKtgA"
+  },
+  "_id": "VRR6MSat1u4TnFSW",
+  "sort": 0,
+  "_key": "!items!VRR6MSat1u4TnFSW"
+}

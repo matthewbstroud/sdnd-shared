@@ -1,0 +1,261 @@
+{
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "<div class=\"ddb\">\n<p>A black beam of enervating energy springs from your finger toward a creature within range. Make a ranged spell attack against the target. On a hit, the target deals only half damage with weapon attacks that use &amp;Reference[str]{Strength} until the spell ends.</p>\n<p>At the end of each of the target's turns, it can make a &amp;Reference[con]{Constitution} saving throw against the spell. On a success, the spell ends.</p>\n</div>",
+      "chat": ""
+    },
+    "source": {
+      "book": "Player’s Handbook",
+      "page": "271",
+      "license": "",
+      "custom": ""
+    },
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": "1",
+      "units": "minute"
+    },
+    "cover": null,
+    "crewed": false,
+    "target": {
+      "value": 1,
+      "width": null,
+      "units": "",
+      "type": "creature",
+      "prompt": true
+    },
+    "range": {
+      "value": 60,
+      "long": null,
+      "units": "ft"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": null,
+      "recovery": "",
+      "prompt": true
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null,
+      "scale": false
+    },
+    "ability": "",
+    "actionType": "rsak",
+    "attack": {
+      "bonus": "",
+      "flat": false
+    },
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "summons": null,
+    "level": 2,
+    "school": "nec",
+    "properties": [
+      "vocal",
+      "somatic",
+      "concentration"
+    ],
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "name": "Ray of Enfeeblement",
+  "flags": {
+    "ddbimporter": {
+      "id": 138631,
+      "definitionId": 2225,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Ray of Enfeeblement",
+      "sources": [
+        {
+          "sourceId": 1,
+          "pageNumber": null,
+          "sourceType": 2
+        },
+        {
+          "sourceId": 2,
+          "pageNumber": 271,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Debuff"
+      ],
+      "version": "5.1.27",
+      "effectsApplied": true,
+      "chrisEffectsApplied": true,
+      "chrisPreEffectName": "Ray of Enfeeblement"
+    },
+    "midi-qol": {
+      "forceCEOff": true,
+      "fumbleThreshold": null,
+      "effectActivation": false
+    },
+    "custom-character-sheet-sections": {
+      "sectionName": ""
+    },
+    "rest-recovery": {
+      "data": {
+        "recovery": {
+          "enabled": false
+        }
+      }
+    },
+    "midiProperties": {
+      "nodam": false,
+      "fulldam": false,
+      "halfdam": false,
+      "autoFailFriendly": false,
+      "autoSaveFriendly": false,
+      "rollOther": false,
+      "critOther": false,
+      "offHandWeapon": false,
+      "magicdam": false,
+      "magiceffect": false,
+      "concentration": false,
+      "toggleEffect": false,
+      "ignoreTotalCover": false
+    },
+    "exportSource": {
+      "world": "development-testing",
+      "system": "dnd5e",
+      "coreVersion": "10.291",
+      "systemVersion": "2.1.5"
+    },
+    "chris-premades": {
+      "info": {
+        "name": "Ray of Enfeeblement",
+        "version": "0.7.01"
+      }
+    },
+    "dnd5e": {}
+  },
+  "effects": [
+    {
+      "icon": "icons/magic/light/beam-rays-teal.webp",
+      "changes": [
+        {
+          "key": "flags.midi-qol.OverTime",
+          "mode": 0,
+          "value": "label=Ray of Enfeeblement (End of Turn),turn=end,saveDC=$chris.itemDC,saveAbility=con,savingThrow=true,saveMagic=true",
+          "priority": 20
+        },
+        {
+          "key": "flags.midi-qol.onUseMacroName",
+          "mode": 0,
+          "value": "function.chrisPremades.macros.rayOfEnfeeblement,postDamageRoll",
+          "priority": 20
+        }
+      ],
+      "duration": {
+        "startTime": null,
+        "seconds": null,
+        "combat": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null
+      },
+      "tint": null,
+      "transfer": false,
+      "disabled": false,
+      "flags": {
+        "dae": {
+          "transfer": false,
+          "stackable": "noneName",
+          "selfTarget": false,
+          "selfTargetAlways": false,
+          "durationExpression": "",
+          "macroRepeat": "none",
+          "specialDuration": []
+        },
+        "ddbimporter": {
+          "disabled": false
+        },
+        "midi-qol": {
+          "forceCEOff": true
+        },
+        "dfreds-convenient-effects": {
+          "description": ""
+        },
+        "core": {
+          "statusId": ""
+        },
+        "ActiveAuras": {
+          "isAura": false,
+          "aura": "None",
+          "radius": "undefined",
+          "alignment": "",
+          "type": "",
+          "ignoreSelf": false,
+          "height": false,
+          "hidden": false,
+          "displayTemp": false,
+          "hostile": false,
+          "onlyOnce": false
+        }
+      },
+      "_id": "EWWLgSlMqGPUFMBb",
+      "origin": null,
+      "name": "Ray of Enfeeblement",
+      "description": "",
+      "statuses": [],
+      "_key": "!items.effects!ws4ipQTE26lnpm5N.EWWLgSlMqGPUFMBb"
+    }
+  ],
+  "img": "icons/magic/light/beam-rays-teal.webp",
+  "folder": "ocH9XKjvhtI6hJk6",
+  "ownership": {
+    "default": 0,
+    "6yhz13iFYYklKtgA": 3
+  },
+  "_stats": {
+    "systemId": "dnd5e",
+    "systemVersion": "3.1.2",
+    "coreVersion": "11.315",
+    "createdTime": 1721274675367,
+    "modifiedTime": 1721274675367,
+    "lastModifiedBy": "6yhz13iFYYklKtgA"
+  },
+  "_id": "ws4ipQTE26lnpm5N",
+  "sort": 0,
+  "_key": "!items!ws4ipQTE26lnpm5N"
+}

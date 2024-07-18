@@ -1,0 +1,223 @@
+{
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "<div class=\"ddb\">\n<p>Choose one creature that you can see within range. The target begins a comic dance in place: shuffling, tapping its feet, and capering for the duration. Creatures that can't be &amp;Reference[charmed]{charmed} are immune to this spell.</p>\n<p>A dancing creature must use all its movement to dance without leaving its space and has disadvantage on &amp;Reference[dex]{Dexterity} saving throws and attack rolls. While the target is affected by this spell, other creatures have advantage on attack rolls against it. As an action, a dancing creature makes a &amp;Reference[wis]{Wisdom} saving throw to regain control of itself. On a successful save, the spell ends.</p>\n</div>",
+      "chat": ""
+    },
+    "source": {
+      "book": "Player’s Handbook",
+      "page": "264",
+      "license": "",
+      "custom": ""
+    },
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": "1",
+      "units": "minute"
+    },
+    "cover": null,
+    "crewed": false,
+    "target": {
+      "value": 1,
+      "units": "",
+      "type": "creature",
+      "width": null,
+      "prompt": true
+    },
+    "range": {
+      "value": 30,
+      "long": null,
+      "units": "ft"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": null,
+      "recovery": "",
+      "prompt": true
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null,
+      "scale": false
+    },
+    "ability": "",
+    "actionType": "save",
+    "attack": {
+      "bonus": "",
+      "flat": false
+    },
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "wis",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "summons": null,
+    "level": 6,
+    "school": "enc",
+    "properties": [
+      "vocal",
+      "concentration"
+    ],
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "name": "Otto's Irresistible Dance",
+  "flags": {
+    "ddbimporter": {
+      "id": 138534,
+      "definitionId": 2160,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Otto's Irresistible Dance",
+      "sources": [
+        {
+          "sourceId": 1,
+          "pageNumber": null,
+          "sourceType": 2
+        },
+        {
+          "sourceId": 2,
+          "pageNumber": 264,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Control",
+        "Debuff"
+      ],
+      "version": "5.1.27",
+      "effectsApplied": true
+    },
+    "midi-qol": {
+      "removeAttackDamageButtons": "default",
+      "forceCEOff": true
+    },
+    "midiProperties": {
+      "confirmTargets": "default",
+      "magicdam": true,
+      "magiceffect": true
+    },
+    "dae": {
+      "macro": {
+        "name": "Otto's Irresistible Dance",
+        "type": "script",
+        "scope": "global",
+        "command": "const lastArg = args[args.length - 1];\n\n// DAE Macro Execute, Effect Value = \"Macro Name\"\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n\nconst DAEItem = lastArg.efData.flags.dae.itemData;\nconst saveData = DAEItem.system.save;\nconst saveDC = (saveData.dc === null || saveData.dc === \"\") && saveData.scaling === \"spell\"\n  ? (await fromUuid(lastArg.efData.origin)).parent.getRollData().attributes.spelldc\n  : saveData.dc;\n\nif (args[0] === \"each\") {\n  new Dialog({\n    title: \"Use action to make a wisdom save to end Irresistible Dance?\",\n    buttons: {\n      one: {\n        label: \"Yes\",\n        callback: async () => {\n          const flavor = `${CONFIG.DND5E.abilities[saveData.ability].label} DC${saveDC} ${DAEItem?.name || \"\"}`;\n          const saveRoll = (await targetActor.rollAbilitySave(saveData.ability, { flavor })).total;\n\n          if (saveRoll >= saveDC) {\n            targetActor.deleteEmbeddedDocuments(\"ActiveEffect\", [lastArg.effectId]);\n          } else if (saveRoll < saveDC) ChatMessage.create({ content: `${targetActor.name} fails the save` });\n        },\n      },\n      two: {\n        label: \"No\",\n      },\n    },\n  }).render(true);\n}\n"
+      }
+    }
+  },
+  "effects": [
+    {
+      "icon": "icons/magic/control/energy-stream-link-spiral-orange.webp",
+      "changes": [
+        {
+          "key": "flags.midi-qol.disadvantage.ability.save.str",
+          "mode": 0,
+          "value": "1",
+          "priority": 20
+        },
+        {
+          "key": "flags.midi-qol.disadvantage.attack.all",
+          "mode": 0,
+          "value": "1",
+          "priority": 20
+        },
+        {
+          "key": "flags.midi-qol.grants.advantage.attack.all",
+          "mode": 0,
+          "value": "1",
+          "priority": 20
+        },
+        {
+          "key": "macro.itemMacro",
+          "value": "",
+          "mode": 0,
+          "priority": 20
+        }
+      ],
+      "duration": {
+        "seconds": null,
+        "startTime": null,
+        "rounds": 10,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null,
+        "combat": null
+      },
+      "tint": null,
+      "transfer": false,
+      "disabled": false,
+      "flags": {
+        "dae": {
+          "transfer": false,
+          "stackable": "noneName",
+          "macroRepeat": "startEveryTurn"
+        },
+        "ddbimporter": {
+          "disabled": false
+        },
+        "midi-qol": {
+          "forceCEOff": true
+        },
+        "core": {}
+      },
+      "name": "Otto's Irresistible Dance",
+      "statuses": [],
+      "_id": "7kRGAOYITYkjH3jU",
+      "description": "",
+      "origin": null,
+      "_key": "!items.effects!qXlJnlW3jei8suC1.7kRGAOYITYkjH3jU"
+    }
+  ],
+  "img": "icons/magic/control/energy-stream-link-spiral-orange.webp",
+  "folder": "qUHjLOJ6GhNjE4HD",
+  "ownership": {
+    "default": 0,
+    "6yhz13iFYYklKtgA": 3
+  },
+  "_stats": {
+    "systemId": "dnd5e",
+    "systemVersion": "3.1.2",
+    "coreVersion": "11.315",
+    "createdTime": 1721274675580,
+    "modifiedTime": 1721274675580,
+    "lastModifiedBy": "6yhz13iFYYklKtgA"
+  },
+  "_id": "qXlJnlW3jei8suC1",
+  "sort": 0,
+  "_key": "!items!qXlJnlW3jei8suC1"
+}
