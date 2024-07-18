@@ -1,0 +1,205 @@
+{
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "<div class=\"ddb\">\n<p>For the spell's duration, your eyes become an inky void imbued with dread power. One creature of your choice within 60 feet of you that you can see must succeed on a &amp;Reference[wis]{Wisdom} saving throw or be affected by one of the following effects of your choice for the duration. On each of your turns until the spell ends, you can use your action to target another creature but can't target a creature again if it has succeeded on a saving throw against this casting of <strong>eyebite</strong>.</p>\n<p><strong>Asleep.</strong> The target falls &amp;Reference[unconscious]{unconscious}. It wakes up if it takes any damage or if another creature uses its action to shake the sleeper awake.</p>\n<p><strong>Panicked.</strong> The target is &amp;Reference[frightened]{frightened} of you. On each of its turns, the &amp;Reference[frightened]{frightened} creature must take the Dash action and move away from you by the safest and shortest available route, unless there is nowhere to move. If the target moves to a place at least 60 feet away from you where it can no longer see you, this effect ends.</p>\n<p><strong>Sickened.</strong> The target has disadvantage on attack rolls and ability checks. At the end of each of its turns, it can make another &amp;Reference[wis]{Wisdom} saving throw. If it succeeds, the effect ends.</p>\n</div>",
+      "chat": ""
+    },
+    "source": {
+      "book": "Player’s Handbook",
+      "page": "238",
+      "license": "",
+      "custom": ""
+    },
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": "1",
+      "units": "minute"
+    },
+    "cover": null,
+    "crewed": false,
+    "target": {
+      "value": 1,
+      "units": "",
+      "type": "self",
+      "width": null,
+      "prompt": true
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": "self"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": null,
+      "recovery": "",
+      "prompt": true
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null,
+      "scale": false
+    },
+    "ability": "",
+    "actionType": "other",
+    "attack": {
+      "bonus": "",
+      "flat": false
+    },
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "summons": null,
+    "level": 6,
+    "school": "nec",
+    "properties": [
+      "vocal",
+      "somatic",
+      "concentration"
+    ],
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "name": "Eyebite",
+  "flags": {
+    "ddbimporter": {
+      "id": 136746,
+      "definitionId": 2089,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Eyebite",
+      "sources": [
+        {
+          "sourceId": 1,
+          "pageNumber": null,
+          "sourceType": 2
+        },
+        {
+          "sourceId": 2,
+          "pageNumber": 238,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Debuff"
+      ],
+      "version": "5.1.27",
+      "effectsApplied": true
+    },
+    "midi-qol": {
+      "removeAttackDamageButtons": "default",
+      "forceCEOff": true
+    },
+    "midiProperties": {
+      "confirmTargets": "default",
+      "magicdam": true,
+      "magiceffect": true
+    },
+    "dae": {
+      "macro": {
+        "name": "Eyebite",
+        "type": "script",
+        "scope": "global",
+        "command": "if (!game.modules.get(\"dfreds-convenient-effects\")?.active) {\n  ui.notifications.error(\"Please enable the CE module\");\n  return;\n}\n\nconst lastArg = args[args.length - 1];\n\nconst DAEItem = lastArg.efData.flags.dae.itemData;\n\n// console.warn(\"Details\", {\n//   args,\n//   lastArg,\n//   actor,\n//   token,\n//   DAEItem\n// })\n\nconst EFFECT_LOOKUP = {\n  \"asleep\": [\"Unconscious\"],\n  \"panicked\": [\"Frightened\"],\n  \"sickened\": [\"Poisoned\"],\n};\n\nasync function eyebite(type, dc, targetActor) {\n  const flavor = `${CONFIG.DND5E.abilities[\"wis\"].label} DC${dc} ${DAEItem?.name || \"\"}`;\n  const saveRoll = await targetActor.rollAbilitySave(\"wis\", { flavor, fastForward: true });\n  if (dc > saveRoll.total) {\n    ChatMessage.create({ content: `${targetActor.name} failed the save with a ${saveRoll.total}` });\n    const conditions = EFFECT_LOOKUP[type];\n    conditions.forEach((condition) => {\n      game.dfreds.effectInterface.addEffect({ effectName: condition, uuid: targetActor.uuid, origin: lastArg.origin });\n    })\n    DAE.setFlag(targetActor, \"eyebiteSpell\", { conditions, dc, origin: lastArg.origin });\n  } else {\n    ChatMessage.create({ content: `${targetActor.name} passed the save with a ${saveRoll.total}` });\n  }\n}\n\nasync function eyebiteDialog(userId, dc, targetActor) {\n  const type = await DDBImporter.DialogHelper.AskUserButtonDialog(userId, {\n    buttons: [\n      { label: \"Asleep\", value: \"asleep\" },\n      { label: \"Panicked\", value: \"panicked\" },\n      { label: \"Sickened\", value: \"sickened\" },\n    ],\n    title: DAEItem.name ?? \"Eyebite\",\n    content: `<p>Choose effect for ${DAEItem.name} target</p>`,\n  },\n  'column');\n\n  if (!type) return;\n\n  await eyebite(type, dc, targetActor);\n}\n\nasync function getTarget(userId, ignoreInitial = false) {\n  if (game.users.get(userId).targets.size === 1 && !ignoreInitial) {\n    return game.users.get(userId).targets.toObject()[0];\n  } else {\n    const result = await DDBImporter.DialogHelper.AskUserButtonDialog(userId, {\n      buttons: [\n        { label: \"I have targeted\", value: true },\n        { label: \"Cancel\", value: false },\n      ],\n      title: DAEItem.name ?? \"Eyebite\",\n      content: `<p>Choose a single target for ${DAEItem.name}</p>`,\n    },\n    'column');\n    if (result && game.users.get(userId).targets.size === 1) {\n      return game.users.get(userId).targets.toObject()[0];\n    } else if (result && getDamageImmunities.targets.size !== 0) {\n      return getTarget(userId, ignoreInitial);\n    } else {\n      return undefined;\n    }\n  }\n}\n\nif (args[0] === \"on\") {\n  const saveData = foundry.utils.deepClone(DAEItem.system.save);\n  if (saveData.scaling === \"spell\") {\n    const rollData = actor.getRollData();\n    saveData.dc = rollData.attributes.spelldc;\n  }\n\n  const target = await getTarget(game.userId, false);\n\n  if (!target) return;\n\n  await eyebiteDialog(game.userId, saveData.dc, target.actor);\n  ChatMessage.create({ content: `${target.name} is blessed with Eyebite` });\n\n  const options = {\n    userId: game.userId,\n  };\n\n  DAE.setFlag(actor, \"eyebiteSpell\", options);\n} else if (args[0] === \"each\") {\n  const flag = DAE.getFlag(actor, \"eyebiteSpell\");\n  const userId = flag.userId ?? game.userId;\n\n  const again = await DDBImporter.DialogHelper.AskUserButtonDialog(userId, {\n    buttons: [\n      { label: \"Yes\", value: true },\n      { label: \"No\", value: false },\n    ],\n    title: DAEItem.name ?? \"Eyebite\",\n    content: `<p>Would you like to use your action to use ${DAEItem.name} again?</p>`,\n  },\n  'column');\n\n  if (!again) return;\n  const target = await getTarget(userId, true);\n  if (!target) return;\n\n  await eyebiteDialog(userId, flag.dc, target.actor);\n}\n\nelse if (args[0] === \"off\") {\n  game.canvas.tokens.placeables.forEach((t) => {\n    const effects = DDBImporter.EffectHelper.getActorEffects(t.actor)\n      .filter((e => e.origin === lastArg.origin));\n    if (effects.length > 0) {\n      const flag = DAE.getFlag(t.actor, \"eyebiteSpell\") ?? { conditions: [] };\n      flag.conditions.forEach((condition) => {\n        if (DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(condition, t.actor)) {\n          game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: t.actor.uuid });\n        }\n      });\n      DAE.unsetFlag(actor, \"eyebiteSpell\");\n    }\n  });\n  await DAE.unsetFlag(actor, \"eyebiteSpell\");\n}\n"
+      }
+    }
+  },
+  "effects": [
+    {
+      "icon": "icons/magic/perception/eye-ringed-glow-angry-large-red.webp",
+      "changes": [
+        {
+          "key": "macro.itemMacro",
+          "value": "",
+          "mode": 0,
+          "priority": 20
+        }
+      ],
+      "duration": {
+        "seconds": null,
+        "startTime": null,
+        "rounds": 10,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null,
+        "combat": null
+      },
+      "tint": null,
+      "transfer": false,
+      "disabled": false,
+      "flags": {
+        "dae": {
+          "transfer": false,
+          "stackable": "noneName",
+          "macroRepeat": "startEveryTurn"
+        },
+        "ddbimporter": {
+          "disabled": false
+        },
+        "midi-qol": {
+          "forceCEOff": true
+        },
+        "core": {}
+      },
+      "name": "Eyebite",
+      "statuses": [],
+      "_id": "BZfmkGMR7V2cjSOh",
+      "description": "",
+      "origin": null,
+      "_key": "!items.effects!lPrbnuBfz9kjMqXH.BZfmkGMR7V2cjSOh"
+    }
+  ],
+  "img": "icons/magic/perception/eye-ringed-glow-angry-large-red.webp",
+  "folder": "ocH9XKjvhtI6hJk6",
+  "ownership": {
+    "default": 0,
+    "6yhz13iFYYklKtgA": 3
+  },
+  "_stats": {
+    "systemId": "dnd5e",
+    "systemVersion": "3.1.2",
+    "coreVersion": "11.315",
+    "createdTime": 1721274674829,
+    "modifiedTime": 1721274674829,
+    "lastModifiedBy": "6yhz13iFYYklKtgA"
+  },
+  "_id": "lPrbnuBfz9kjMqXH",
+  "sort": 0,
+  "_key": "!items!lPrbnuBfz9kjMqXH"
+}

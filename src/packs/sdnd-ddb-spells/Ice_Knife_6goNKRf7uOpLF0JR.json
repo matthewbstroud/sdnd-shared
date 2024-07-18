@@ -1,0 +1,161 @@
+{
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "<div class=\"ddb\">\n<p class=\"Core-Styles_Core-Body\">You create a shard of ice and fling it at one creature within range. Make a ranged spell attack against the target. On a hit, the target takes 1d10 &amp;Reference[piercing]{piercing} damage. Hit or miss, the shard then explodes. The target and each creature within 5 feet of it must succeed on a &amp;Reference[dex]{Dexterity} saving throw or take 2d6 &amp;Reference[cold]{cold} damage.</p>\n<p class=\"Core-Styles_Core-Body\"><span class=\"Serif-Character-Style_Inline-Subhead-Serif\"><strong>At Higher Levels.</strong> </span>When you cast this spell using a spell slot of 2nd level or higher, the &amp;Reference[cold]{cold} damage increases by 1d6 for each slot level above 1st.</p>\n</div>",
+      "chat": ""
+    },
+    "source": {
+      "book": "Elemental Evil Player's Companion",
+      "page": "157",
+      "license": "",
+      "custom": ""
+    },
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": "",
+      "units": "inst"
+    },
+    "cover": null,
+    "crewed": false,
+    "target": {
+      "value": 1,
+      "width": null,
+      "units": "",
+      "type": "creature",
+      "prompt": true
+    },
+    "range": {
+      "value": 60,
+      "long": null,
+      "units": "ft"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": null,
+      "recovery": "",
+      "prompt": true
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null,
+      "scale": false
+    },
+    "ability": "",
+    "actionType": "rsak",
+    "attack": {
+      "bonus": "",
+      "flat": false
+    },
+    "chatFlavor": "[1d10 - piercing] On Hit, [2d6 - cold] On Dexterity Save Fail",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [
+        [
+          "1d10",
+          "piercing"
+        ]
+      ],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "summons": null,
+    "level": 1,
+    "school": "con",
+    "properties": [
+      "somatic",
+      "material"
+    ],
+    "materials": {
+      "value": "a drop of water or a piece of ice",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "name": "Ice Knife",
+  "flags": {
+    "ddbimporter": {
+      "id": 138117,
+      "definitionId": 2384,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Ice Knife",
+      "sources": [
+        {
+          "sourceId": 4,
+          "pageNumber": 157,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Damage"
+      ],
+      "version": "5.1.27",
+      "effectsApplied": true
+    },
+    "midi-qol": {
+      "removeAttackDamageButtons": "default",
+      "onUseMacroName": "[postActiveEffects]ItemMacro",
+      "forceCEOff": true
+    },
+    "midiProperties": {
+      "confirmTargets": "default",
+      "magicdam": true,
+      "magiceffect": true
+    },
+    "dae": {
+      "macro": {
+        "name": "Ice Knife",
+        "type": "script",
+        "scope": "global",
+        "command": "const lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst casterActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n\nif (lastArg.targets.length > 0) {\n  let areaSpellData = foundry.utils.duplicate(lastArg.item);\n  const damageDice = 1 + lastArg.spellLevel;\n  delete areaSpellData.effects;\n  delete areaSpellData.id;\n  delete areaSpellData.flags[\"midi-qol\"].onUseMacroName;\n  delete areaSpellData.flags[\"midi-qol\"].onUseMacroParts;\n  if (foundry.utils.hasProperty(areaSpellData, \"flags.itemacro\")) delete areaSpellData.flags.itemacro;\n  if (foundry.utils.hasProperty(areaSpellData, \"flags.dae.macro\")) delete areaSpellData.flags.dae.macro;\n  areaSpellData.name = \"Ice Knife: Explosion\";\n  areaSpellData.system.damage.parts = [[`${damageDice}d6[cold]`, \"cold\"]];\n  areaSpellData.system.actionType = \"save\";\n  areaSpellData.system.save.ability = \"dex\";\n  areaSpellData.system.scaling = { mode: \"level\", formula: \"1d6\" };\n  areaSpellData.system.preparation.mode = \"atwill\";\n  areaSpellData.system.target.value = 99;\n\n  foundry.utils.hasProperty(areaSpellData, \"flags.midiProperties.magicdam\", true);\n  foundry.utils.hasProperty(areaSpellData, \"flags.midiProperties.saveDamage\", \"nodam\");\n  foundry.utils.hasProperty(areaSpellData, \"flags.midiProperties.bonusSaveDamage\", \"nodam\");\n\n  const areaSpell = new CONFIG.Item.documentClass(areaSpellData, { parent: casterActor });\n  areaSpell.prepareData();\n  areaSpell.prepareFinalAttributes();\n  const target = canvas.tokens.get(lastArg.targets[0].id);\n  const aoeTargets = MidiQOL\n    .findNearby(null, target, 5, { includeIncapacitated: true })\n    .filter((possible) => {\n      const collisionRay = new Ray(target, possible);\n      const collision = DDBImporter?.EffectHelper.checkCollision(collisionRay, [\"sight\"]);\n      if (collision) return false;\n      else return true;\n    })\n    .concat(target)\n    .map((t) => t.document.uuid);\n\n  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: aoeTargets });\n  await MidiQOL.completeItemUse(areaSpell, config, options);\n} else {\n  ui.notifications.error(\"Ice Knife: No target selected: unable to automate burst effect.\");\n}\n"
+      }
+    }
+  },
+  "effects": [],
+  "img": "icons/magic/water/projectile-ice-faceted-gray.webp",
+  "folder": "e8UeRF8mmfaJRx4e",
+  "ownership": {
+    "default": 0,
+    "6yhz13iFYYklKtgA": 3
+  },
+  "_stats": {
+    "systemId": "dnd5e",
+    "systemVersion": "3.1.2",
+    "coreVersion": "11.315",
+    "createdTime": 1721274674436,
+    "modifiedTime": 1721274674436,
+    "lastModifiedBy": "6yhz13iFYYklKtgA"
+  },
+  "_id": "6goNKRf7uOpLF0JR",
+  "sort": 0,
+  "_key": "!items!6goNKRf7uOpLF0JR"
+}

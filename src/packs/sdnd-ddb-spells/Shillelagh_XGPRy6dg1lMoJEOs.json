@@ -1,0 +1,208 @@
+{
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "<div class=\"ddb\">\n<p>The wood of a club or quarterstaff you are holding is imbued with nature's power. For the duration, you can use your spellcasting ability instead of &amp;Reference[str]{Strength} for the attack and damage rolls of melee attacks using that weapon, and the weapon's damage die becomes a d8. The weapon also becomes magical, if it isn't already. The spell ends if you cast it again or if you let go of the weapon.</p>\n</div>",
+      "chat": ""
+    },
+    "source": {
+      "book": "Player’s Handbook",
+      "page": "275",
+      "license": "",
+      "custom": ""
+    },
+    "activation": {
+      "type": "bonus",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": "1",
+      "units": "minute"
+    },
+    "cover": null,
+    "crewed": false,
+    "target": {
+      "value": null,
+      "units": "",
+      "type": "",
+      "width": null,
+      "prompt": true
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": "touch"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": null,
+      "recovery": "",
+      "prompt": true
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null,
+      "scale": false
+    },
+    "ability": "",
+    "actionType": "other",
+    "attack": {
+      "bonus": "",
+      "flat": false
+    },
+    "chatFlavor": "[1d8 - bludgeoning] The weapon is magical.",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "summons": null,
+    "level": 0,
+    "school": "trs",
+    "properties": [
+      "vocal",
+      "somatic",
+      "material"
+    ],
+    "materials": {
+      "value": "mistletoe, a shamrock leaf, and a club or quarterstaff",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "name": "Shillelagh",
+  "flags": {
+    "ddbimporter": {
+      "id": 138708,
+      "definitionId": 2249,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Shillelagh",
+      "sources": [
+        {
+          "sourceId": 1,
+          "pageNumber": null,
+          "sourceType": 2
+        },
+        {
+          "sourceId": 2,
+          "pageNumber": 275,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Damage",
+        "Buff"
+      ],
+      "version": "5.1.27",
+      "effectsApplied": true
+    },
+    "midi-qol": {
+      "removeAttackDamageButtons": "default",
+      "onUseMacroName": "[preTargeting]ItemMacro",
+      "forceCEOff": true
+    },
+    "midiProperties": {
+      "confirmTargets": "default",
+      "magicdam": true,
+      "magiceffect": true
+    },
+    "dae": {
+      "macro": {
+        "name": "Shillelagh",
+        "type": "script",
+        "scope": "global",
+        "command": "if (args[0].tag === \"OnUse\" && [\"preTargeting\"].includes(args[0].macroPass)) {\n  args[0].workflow.item.system['target']['type'] = \"self\";\n  args[0].workflow.item.system.range = { value: null, units: \"self\", long: null };\n  return;\n}\n\nconst lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n\n// we see if the equipped weapons have base weapon set and filter on that, otherwise we just get all weapons\nconst filteredWeapons = target.items\n  .filter((i) => i.type === \"weapon\" && (i.system.type.baseItem === \"club\" || i.system.type.baseItem === \"quarterstaff\"));\nconst weapons = (filteredWeapons.length > 0)\n  ? filteredWeapons\n  : target.items.filter((i) => i.type === \"weapon\");\n\nconst weaponContent = weapons.map((w) => `<option value=${w.id}>${w.name}</option>`).join(\"\");\n\nif (args[0] === \"on\") {\n  const content = `\n<div class=\"form-group\">\n <label>Weapons : </label>\n <select name=\"weapons\">\n ${weaponContent}\n </select>\n</div>\n`;\n\n  new Dialog({\n    title: \"Choose a club or quarterstaff\",\n    content,\n    buttons: {\n      Ok: {\n        label: \"Ok\",\n        callback: async (html) => {\n          const itemId = html.find(\"[name=weapons]\")[0].value;\n          const weaponItem = target.getEmbeddedDocument(\"Item\", itemId);\n          const weaponCopy = foundry.utils.duplicate(weaponItem);\n          await DAE.setFlag(target, \"shillelagh\", {\n            id: itemId,\n            name: weaponItem.name,\n            damage: weaponItem.system.damage.parts[0][0],\n            ability: weaponItem.system.ability,\n            magical: foundry.utils.getProperty(weaponItem, \"system.properties.mgc\") || false,\n          });\n          const damage = weaponCopy.system.damage.parts[0][0];\n          const targetAbilities = target.system.abilities;\n          weaponCopy.system.damage.parts[0][0] = damage.replace(/1d(4|6)/g, \"1d8\");\n          if (targetAbilities.wis.value > targetAbilities.str.value) weaponCopy.system.ability = \"wis\";\n          weaponCopy.name = weaponItem.name + \" [Shillelagh]\";\n          foundry.utils.setProperty(weaponCopy, \"system.properties.mgc\", true);\n          await target.updateEmbeddedDocuments(\"Item\", [weaponCopy]);\n          await ChatMessage.create({\n            content: weaponCopy.name + \" is empowered by Shillelagh\",\n          });\n        },\n      },\n      Cancel: {\n        label: \"Cancel\",\n      },\n    },\n  }).render(true);\n}\n\nif (args[0] === \"off\") {\n  const flag = DAE.getFlag(target, \"shillelagh\");\n  const weaponItem = target.getEmbeddedDocument(\"Item\", flag.id);\n  const weaponCopy = foundry.utils.duplicate(weaponItem);\n  weaponCopy.system.damage.parts[0][0] = flag.damage;\n  weaponCopy.system.ability = flag.ability;\n  weaponCopy.name = flag.name;\n  foundry.utils.setProperty(weaponCopy, \"system.properties.mgc\", flag.magical);\n  await target.updateEmbeddedDocuments(\"Item\", [weaponCopy]);\n  await DAE.unsetFlag(target, \"shillelagh\");\n  await ChatMessage.create({ content: weaponCopy.name + \" returns to normal\" });\n}\n"
+      }
+    }
+  },
+  "effects": [
+    {
+      "icon": "icons/skills/melee/hand-grip-staff-yellow-brown.webp",
+      "changes": [
+        {
+          "key": "macro.itemMacro",
+          "value": "",
+          "mode": 0,
+          "priority": 0
+        }
+      ],
+      "duration": {
+        "seconds": null,
+        "startTime": null,
+        "rounds": 10,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null,
+        "combat": null
+      },
+      "tint": null,
+      "transfer": false,
+      "disabled": false,
+      "flags": {
+        "dae": {
+          "transfer": false,
+          "stackable": "noneName",
+          "selfTarget": true,
+          "selfTargetAlways": true
+        },
+        "ddbimporter": {
+          "disabled": false
+        },
+        "midi-qol": {
+          "forceCEOff": true
+        },
+        "core": {}
+      },
+      "name": "Shillelagh",
+      "statuses": [],
+      "_id": "pLnjPSaZpwb9Zlqm",
+      "description": "",
+      "origin": null,
+      "_key": "!items.effects!XGPRy6dg1lMoJEOs.pLnjPSaZpwb9Zlqm"
+    }
+  ],
+  "img": "icons/skills/melee/hand-grip-staff-yellow-brown.webp",
+  "folder": "Muf6CObMiNg37DS4",
+  "ownership": {
+    "default": 0,
+    "6yhz13iFYYklKtgA": 3
+  },
+  "_stats": {
+    "systemId": "dnd5e",
+    "systemVersion": "3.1.2",
+    "coreVersion": "11.315",
+    "createdTime": 1721274674578,
+    "modifiedTime": 1721274674578,
+    "lastModifiedBy": "6yhz13iFYYklKtgA"
+  },
+  "_id": "XGPRy6dg1lMoJEOs",
+  "sort": 0,
+  "_key": "!items!XGPRy6dg1lMoJEOs"
+}
