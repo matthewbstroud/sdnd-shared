@@ -1,0 +1,234 @@
+{
+  "name": "Cloak of Displacement",
+  "type": "equipment",
+  "system": {
+    "description": {
+      "value": "<div class=\"ddb\">\n<p>While you wear this cloak, it projects an &amp;Reference[ill]{illusion} that makes you appear to be standing in a place near your actual location, causing any creature to have disadvantage on attack rolls against you. If you take damage, the property ceases to function until the start of your next turn. This property is suppressed while you are &amp;Reference[incapacitated]{incapacitated}, &amp;Reference[restrained]{restrained}, or otherwise unable to move.</p>\n</div>",
+      "chat": ""
+    },
+    "source": {
+      "book": "Player’s Handbook",
+      "page": "158",
+      "license": "",
+      "custom": ""
+    },
+    "identified": true,
+    "unidentified": {
+      "description": ""
+    },
+    "container": null,
+    "quantity": 1,
+    "weight": 0,
+    "price": {
+      "value": 0,
+      "denomination": "gp"
+    },
+    "rarity": "rare",
+    "attunement": 1,
+    "equipped": false,
+    "activation": {
+      "type": "",
+      "cost": null,
+      "condition": ""
+    },
+    "duration": {
+      "value": "",
+      "units": ""
+    },
+    "cover": null,
+    "crewed": false,
+    "target": {
+      "value": null,
+      "width": null,
+      "units": "",
+      "type": "",
+      "prompt": true
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": ""
+    },
+    "uses": {
+      "value": 0,
+      "max": "",
+      "per": null,
+      "prompt": false,
+      "recovery": ""
+    },
+    "consume": {
+      "type": "",
+      "target": null,
+      "amount": null,
+      "scale": false
+    },
+    "ability": null,
+    "actionType": null,
+    "attack": {
+      "bonus": "",
+      "flat": false
+    },
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "summons": null,
+    "armor": {
+      "value": null,
+      "dex": null,
+      "magicalBonus": null
+    },
+    "hp": {
+      "value": null,
+      "max": null,
+      "dt": null,
+      "conditions": ""
+    },
+    "type": {
+      "value": "clothing",
+      "baseItem": ""
+    },
+    "properties": [
+      "mgc"
+    ],
+    "speed": {
+      "value": null,
+      "conditions": ""
+    },
+    "strength": 0,
+    "proficient": 1
+  },
+  "flags": {
+    "ddbimporter": {
+      "dndbeyond": {
+        "type": "Clothing",
+        "avatarUrl": "https://www.dndbeyond.com/avatars/19/216/636382363396040957.jpeg",
+        "largeAvatarUrl": "https://www.dndbeyond.com/avatars/7/164/636284722823230171.jpeg",
+        "filterType": "Wondrous item",
+        "isConsumable": false,
+        "isContainer": false,
+        "isCustomItem": false,
+        "isHomebrew": false,
+        "isMonkWeapon": false,
+        "isPack": false,
+        "levelInfusionGranted": null,
+        "tags": [
+          "Deception",
+          "Warding",
+          "Outerwear"
+        ],
+        "sources": [
+          {
+            "sourceId": 1,
+            "pageNumber": null,
+            "sourceType": 2
+          },
+          {
+            "sourceId": 2,
+            "pageNumber": 158,
+            "sourceType": 1
+          }
+        ],
+        "pictureUrl": "https://www.dndbeyond.com/avatars/7/164/636284722823230171.jpeg"
+      },
+      "id": 0,
+      "entityTypeId": 0,
+      "definitionEntityTypeId": 112130694,
+      "definitionId": 4605,
+      "originalName": "Cloak of Displacement",
+      "version": "5.1.27",
+      "effectsApplied": true,
+      "keepIcon": true
+    },
+    "midi-qol": {
+      "removeAttackDamageButtons": "default",
+      "forceCEOff": true
+    },
+    "midiProperties": {
+      "confirmTargets": "default"
+    },
+    "dae": {
+      "alwaysActive": false,
+      "activeEquipped": true,
+      "macro": {
+        "name": "Cloak of Displacement",
+        "type": "script",
+        "scope": "global",
+        "command": "if (args[0] === \"each\") {\n\n  const lastArg = args[args.length - 1];\n  const effectData = {\n    changes: [\n      {\n        key: \"flags.midi-qol.grants.disadvantage.attack.all \",\n        mode: CONST.ACTIVE_EFFECT_MODES.ADD,\n        value: 1,\n        priority: 20,\n      },\n    ],\n    origin: lastArg.origin,\n    disabled: false,\n    icon: lastArg.efData.icon,\n    label: `Cloak of Displacement - Enforced Disadvantage`,\n    name: `Cloak of Displacement - Enforced Disadvantage`,\n  };\n  foundry.utils.setProperty(effectData, \"flags.dae.specialDuration\", [\"isDamaged\", \"turnStartSource\"]);\n  foundry.utils.setProperty(effectData, \"flags.dae.showIcon\", true);\n  await lastArg.actor.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n\n}\n"
+      }
+    }
+  },
+  "effects": [
+    {
+      "icon": "https://www.dndbeyond.com/avatars/19/216/636382363396040957.jpeg",
+      "changes": [
+        {
+          "key": "macro.itemMacro",
+          "value": "",
+          "mode": 0,
+          "priority": 20
+        }
+      ],
+      "duration": {
+        "seconds": null,
+        "startTime": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null,
+        "combat": null
+      },
+      "tint": null,
+      "transfer": true,
+      "disabled": false,
+      "flags": {
+        "dae": {
+          "transfer": true,
+          "stackable": "noneName",
+          "macroRepeat": "startEveryTurn"
+        },
+        "ddbimporter": {
+          "disabled": false
+        },
+        "midi-qol": {
+          "forceCEOff": true
+        },
+        "core": {}
+      },
+      "name": "Cloak of Displacement - Check",
+      "statuses": [],
+      "_id": "Qf62zEIWDy1wcJSH",
+      "description": "",
+      "origin": null,
+      "_key": "!items.effects!5xfdxI5QrX0Gy6Pf.Qf62zEIWDy1wcJSH"
+    }
+  ],
+  "img": "https://www.dndbeyond.com/avatars/19/216/636382363396040957.jpeg",
+  "folder": "EhHhHMBjKlzJ9Uk5",
+  "ownership": {
+    "default": 0,
+    "6yhz13iFYYklKtgA": 3
+  },
+  "_stats": {
+    "systemId": "dnd5e",
+    "systemVersion": "3.1.2",
+    "coreVersion": "11.315",
+    "createdTime": 1721268414437,
+    "modifiedTime": 1721268414437,
+    "lastModifiedBy": "6yhz13iFYYklKtgA"
+  },
+  "_id": "5xfdxI5QrX0Gy6Pf",
+  "sort": 0,
+  "_key": "!items!5xfdxI5QrX0Gy6Pf"
+}
