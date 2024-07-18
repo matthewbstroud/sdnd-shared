@@ -1,0 +1,237 @@
+{
+  "name": "Shortsword of Wounding",
+  "type": "weapon",
+  "system": {
+    "description": {
+      "value": "<div class=\"ddb\">\n<p>Hit points lost to this weapon's damage can be regained only through a short or long rest, rather than by regeneration, magic, or any other means.</p>\n<p>Once per turn, when you hit a creature with an attack using this magic weapon, you can wound the target. At the start of each of the wounded creature's turns, it takes 1d4 &amp;Reference[necrotic]{necrotic} damage for each time you've wounded it, and it can then make a [[/save con 15 format=long]], ending the effect of all such wounds on itself on a success. Alternatively, the wounded creature, or a creature within 5 feet of it, can use an action to make a DC 15 &amp;Reference[wis]{Wisdom} (&amp;Reference[med]{Medicine}) check, ending the effect of such wounds on it on a success.</p>\n</div>",
+      "chat": ""
+    },
+    "source": {
+      "book": "Player’s Handbook",
+      "page": "",
+      "license": "",
+      "custom": ""
+    },
+    "identified": true,
+    "unidentified": {
+      "description": ""
+    },
+    "container": null,
+    "quantity": 1,
+    "weight": 2,
+    "price": {
+      "value": 0,
+      "denomination": "gp"
+    },
+    "rarity": "rare",
+    "attunement": 1,
+    "equipped": false,
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": "",
+      "units": ""
+    },
+    "cover": null,
+    "crewed": false,
+    "target": {
+      "value": null,
+      "width": null,
+      "units": "",
+      "type": "",
+      "prompt": true
+    },
+    "range": {
+      "value": 5,
+      "long": null,
+      "units": "ft"
+    },
+    "uses": {
+      "value": 0,
+      "max": "",
+      "per": null,
+      "prompt": false,
+      "recovery": ""
+    },
+    "consume": {
+      "type": "",
+      "target": null,
+      "amount": null,
+      "scale": false
+    },
+    "ability": "",
+    "actionType": "mwak",
+    "attack": {
+      "bonus": "",
+      "flat": false
+    },
+    "chatFlavor": "Roll Other damage: [1d4] Per Wound, DC 15 Constitution Save Ends Effect",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [
+        [
+          "1d6[piercing] + @mod",
+          "piercing"
+        ]
+      ],
+      "versatile": ""
+    },
+    "formula": "1d4[necrotic]",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "summons": null,
+    "armor": {
+      "value": null
+    },
+    "hp": {
+      "value": null,
+      "max": null,
+      "dt": null,
+      "conditions": ""
+    },
+    "type": {
+      "value": "martialM",
+      "baseItem": "shortsword"
+    },
+    "magicalBonus": null,
+    "properties": [
+      "fin",
+      "lgt",
+      "mgc"
+    ],
+    "proficient": 0
+  },
+  "flags": {
+    "ddbimporter": {
+      "dndbeyond": {
+        "type": "Shortsword",
+        "damage": {
+          "parts": []
+        },
+        "classFeatures": [],
+        "ability": "str",
+        "restrictions": [
+          "Per Wound, DC 15 Constitution Save Ends Effect"
+        ],
+        "filterType": "Weapon",
+        "isConsumable": false,
+        "isContainer": false,
+        "isCustomItem": false,
+        "isHomebrew": false,
+        "isMonkWeapon": true,
+        "isPack": false,
+        "levelInfusionGranted": null,
+        "tags": [
+          "Damage",
+          "Combat"
+        ],
+        "sources": [
+          {
+            "sourceId": 1,
+            "pageNumber": null,
+            "sourceType": 2
+          },
+          {
+            "sourceId": 2,
+            "pageNumber": null,
+            "sourceType": 1
+          }
+        ]
+      },
+      "id": 0,
+      "entityTypeId": 0,
+      "definitionEntityTypeId": 112130694,
+      "definitionId": 5179,
+      "originalName": "Shortsword of Wounding",
+      "version": "5.1.27",
+      "effectsApplied": true
+    },
+    "midi-qol": {
+      "removeAttackDamageButtons": "default",
+      "effectCondition": "",
+      "forceCEOff": true
+    },
+    "midiProperties": {
+      "confirmTargets": "default"
+    },
+    "dae": {
+      "macro": {
+        "name": "Shortsword of Wounding",
+        "type": "script",
+        "scope": "global",
+        "command": "//\nconst lastArg = args[args.length - 1];\nlet targetToken = await fromUuid(lastArg.tokenUuid);\nconst targetActor = targetToken?.actor;\nconst item = await fromUuid(lastArg.origin);\n\nif (args[0] === \"on\") {\n\n  if (!game.combat?.round) {\n    ui.notifications.error(\"You can only use the wounding macro during combat.\");\n    return;\n  }\n\n  const sourceActor = item.parent;\n\n  const combatTime = game.combat.round + game.combat.turn / 100;\n  const lastTime = foundry.utils.getProperty(sourceActor.flags, \"midi-qol.woundedTime\");\n  lastArg.canWound = !game.combat || (combatTime !== lastTime);\n  if (game.combat && lastArg.canWound && combatTime !== lastTime) {\n    foundry.utils.setProperty(sourceActor.flags, \"midi-qol.woundedTime\", combatTime)\n  }\n  if (!lastArg.canWound) {\n    const stacks = foundry.utils.getProperty(lastArg.efData, \"flags.dae.stacks\") || 1;\n    const label = (lastArg.efData.name ?? lastArg.efData.label).replace(/\\s+\\(\\d*\\)/, \"\") +` (${stacks - 1})`;\n    Hooks.once(\"midi-qol.RollComplete\", () => {\n      targetActor.updateEmbeddedDocuments(\"ActiveEffect\", [\n        { _id: lastArg.efData._id, \"flags.dae.stacks\": stacks - 1, label, name: label }\n      ]);\n    });\n  }\n} else if (args[0] === \"each\") {\n  const woundCount = foundry.utils.getProperty(lastArg.efData, \"flags.dae.stacks\");\n  if (!woundCount) return;\n  const saveType = \"con\";\n  const DC = 15;\n  const flavor = `${CONFIG.DND5E.abilities[saveType].label} DC${DC} ${item?.name || \"\"}`;\n  const save = (await targetActor.rollAbilitySave(saveType, { flavor, fastForward: true })).total;\n  if (save >= DC) {\n    ChatMessage.create({content: \"Wounding Save was made\"});\n    await MidiQOL.socket().executeAsGM(\"removeEffects\", { actorUuid: targetActor.uuid, effects: [lastArg.effectId] })\n  } else {\n    const damageRoll = await new CONFIG.Dice.DamageRoll(`${woundCount}d4[necrotic]`).evaluate({ async: true });\n    await MidiQOL.displayDSNForRoll(damageRoll, \"damageRoll\");\n    await new MidiQOL.DamageOnlyWorkflow(\n      targetActor,\n      targetToken,\n      damageRoll.total,\n      \"necrotic\",\n      [targetToken],\n      damageRoll,\n      {\n        flavor: `Failed Save for ${item.name}`,\n        itemData: item?.toObject(),\n        itemCardId: \"new\",\n        useOther: true,\n      }\n    );\n  }\n} else if (args[0] === \"off\") {\n  // do any clean up\n}\n"
+      }
+    }
+  },
+  "effects": [
+    {
+      "icon": "icons/weapons/swords/shortsword-hooked-blue.webp",
+      "changes": [
+        {
+          "key": "macro.itemMacro",
+          "value": "",
+          "mode": 0,
+          "priority": 20
+        }
+      ],
+      "duration": {
+        "startTime": null,
+        "seconds": null,
+        "rounds": 400,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null,
+        "combat": null
+      },
+      "tint": null,
+      "transfer": false,
+      "disabled": false,
+      "flags": {
+        "dae": {
+          "transfer": false,
+          "stackable": "count",
+          "macroRepeat": "startEveryTurn"
+        },
+        "ddbimporter": {
+          "disabled": false
+        },
+        "midi-qol": {
+          "forceCEOff": true
+        },
+        "core": {}
+      },
+      "name": "Shortsword of Wounding",
+      "statuses": [],
+      "_id": "M3Lx3NxegKuP3P9M",
+      "description": "",
+      "origin": null,
+      "_key": "!items.effects!j8PkGJ82iENgnQOd.M3Lx3NxegKuP3P9M"
+    }
+  ],
+  "img": "icons/weapons/swords/shortsword-hooked-blue.webp",
+  "folder": "1JdKHOk7VzfkEI02",
+  "ownership": {
+    "default": 0,
+    "6yhz13iFYYklKtgA": 3
+  },
+  "_stats": {
+    "systemId": "dnd5e",
+    "systemVersion": "3.1.2",
+    "coreVersion": "11.315",
+    "createdTime": 1721268418789,
+    "modifiedTime": 1721268418789,
+    "lastModifiedBy": "6yhz13iFYYklKtgA"
+  },
+  "_id": "j8PkGJ82iENgnQOd",
+  "sort": 0,
+  "_key": "!items!j8PkGJ82iENgnQOd"
+}

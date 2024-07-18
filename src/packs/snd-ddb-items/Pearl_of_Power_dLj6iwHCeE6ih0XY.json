@@ -1,0 +1,228 @@
+{
+  "name": "Pearl of Power",
+  "type": "equipment",
+  "system": {
+    "description": {
+      "value": "<div class=\"ddb\">\n<div class=\"item-attunement\"><i>(Requires attunement by a Spellcaster)</i></div><p>While this pearl is on your person, you can use an action to speak its command word and regain one expended spell slot. If the expended slot was of 4th level or higher, the new slot is 3rd level. Once you use the pearl, it can't be used again until the next dawn.</p>\n</div>",
+      "chat": ""
+    },
+    "source": {
+      "book": "Player’s Handbook",
+      "page": "184",
+      "license": "",
+      "custom": ""
+    },
+    "identified": true,
+    "unidentified": {
+      "description": ""
+    },
+    "container": null,
+    "quantity": 1,
+    "weight": 0,
+    "price": {
+      "value": 0,
+      "denomination": "gp"
+    },
+    "rarity": "uncommon",
+    "attunement": 1,
+    "equipped": false,
+    "activation": {
+      "type": "",
+      "cost": null,
+      "condition": ""
+    },
+    "duration": {
+      "value": "",
+      "units": ""
+    },
+    "cover": null,
+    "crewed": false,
+    "target": {
+      "value": null,
+      "width": null,
+      "units": "",
+      "type": "",
+      "prompt": true
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": ""
+    },
+    "uses": {
+      "value": 0,
+      "max": "",
+      "per": null,
+      "prompt": false,
+      "recovery": ""
+    },
+    "consume": {
+      "type": "",
+      "target": null,
+      "amount": null,
+      "scale": false
+    },
+    "ability": null,
+    "actionType": null,
+    "attack": {
+      "bonus": "",
+      "flat": false
+    },
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "summons": null,
+    "armor": {
+      "value": null,
+      "dex": null,
+      "magicalBonus": null
+    },
+    "hp": {
+      "value": null,
+      "max": null,
+      "dt": null,
+      "conditions": ""
+    },
+    "type": {
+      "value": "trinket",
+      "baseItem": ""
+    },
+    "properties": [
+      "mgc"
+    ],
+    "speed": {
+      "value": null,
+      "conditions": ""
+    },
+    "strength": 0,
+    "proficient": 1
+  },
+  "flags": {
+    "ddbimporter": {
+      "dndbeyond": {
+        "type": "Wondrous item",
+        "filterType": "Wondrous item",
+        "isConsumable": false,
+        "isContainer": false,
+        "isCustomItem": false,
+        "isHomebrew": false,
+        "isMonkWeapon": false,
+        "isPack": false,
+        "levelInfusionGranted": null,
+        "tags": [
+          "Buff",
+          "Utility"
+        ],
+        "sources": [
+          {
+            "sourceId": 1,
+            "pageNumber": null,
+            "sourceType": 2
+          },
+          {
+            "sourceId": 2,
+            "pageNumber": 184,
+            "sourceType": 1
+          }
+        ]
+      },
+      "id": 0,
+      "entityTypeId": 0,
+      "definitionEntityTypeId": 112130694,
+      "definitionId": 4691,
+      "originalName": "Pearl of Power",
+      "version": "5.1.27",
+      "effectsApplied": true
+    },
+    "midi-qol": {
+      "removeAttackDamageButtons": "default",
+      "forceCEOff": true
+    },
+    "midiProperties": {
+      "confirmTargets": "default"
+    },
+    "dae": {
+      "macro": {
+        "name": "Pearl of Power",
+        "type": "script",
+        "scope": "global",
+        "command": "if (args[0] !== \"on\") return;\n\nconst lastArg = args[args.length - 1];\nconst tActor = await fromUuid(lastArg.actorUuid);\n\nasync function regainSlot(level) {\n  const currentSpellValue = tActor.system.spells[`spell${level}`].value;\n  if (currentSpellValue + 1 > tActor.system.spells[`spell${level}`].max) {\n    ui.notifications.warn(`You already have the maximum spells available for level ${level}`);\n  } else {\n    await tActor.update({ [`system.spells.spell${level}.value`]: currentSpellValue + 1 });\n    await ChatMessage.create({\n      content: `${tActor.name} has recovered one spell slot of <b><u>Level ${level}</u>.`,\n    });\n  }\n}\n\nconst buttons = {};\n\nfor (let i = 1; i <= 3; i++) {\n  const currentSpellValue = tActor.system.spells[`spell${i}`].value;\n  const maxSpellValue = tActor.system.spells[`spell${i}`].max;\n  if (currentSpellValue < maxSpellValue) buttons[`spell${i}`] = {\n    label: `Level ${i}`,\n    callback: () => regainSlot(i),\n  };\n}\n\nif (!Object.keys(buttons).length) {\n  ui.notifications.warn(\"You have no appropriate spell slots to recover\");\n  return;\n}\n\nnew Dialog({\n  content: `\n    <br>\n    You can regain a single spent spell slot, you have used:\n    <br>\n    <br>\n    - ${tActor.system.spells.spell1.max - tActor.system.spells.spell1.value} first level spells\n    <br>\n    - ${tActor.system.spells.spell2.max - tActor.system.spells.spell2.value} second level spells\n    <br>\n    - ${tActor.system.spells.spell3.max - tActor.system.spells.spell3.value} third level spells\n    <br>\n    <br>\n    Please select below which slot to recover:\n    <br>\n    <br>\n     `,\n  buttons,\n}).render(true);\n"
+      }
+    }
+  },
+  "effects": [
+    {
+      "icon": "icons/commodities/gems/pearl-natural.webp",
+      "changes": [
+        {
+          "key": "macro.itemMacro",
+          "value": "\"Pearl of Power\"",
+          "mode": 0,
+          "priority": 20
+        }
+      ],
+      "duration": {
+        "seconds": null,
+        "startTime": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null,
+        "combat": null
+      },
+      "tint": null,
+      "transfer": false,
+      "disabled": false,
+      "flags": {
+        "dae": {
+          "transfer": true,
+          "stackable": "noneName",
+          "selfTarget": true,
+          "selfTargetAlways": true
+        },
+        "ddbimporter": {
+          "disabled": false
+        },
+        "midi-qol": {
+          "forceCEOff": true
+        },
+        "core": {}
+      },
+      "name": "Pearl of Power",
+      "statuses": [],
+      "_id": "iMdreEd1bj7SJejl",
+      "description": "",
+      "origin": null,
+      "_key": "!items.effects!dLj6iwHCeE6ih0XY.iMdreEd1bj7SJejl"
+    }
+  ],
+  "img": "icons/commodities/gems/pearl-natural.webp",
+  "folder": "aMqBSbENuTAANBU1",
+  "ownership": {
+    "default": 0,
+    "6yhz13iFYYklKtgA": 3
+  },
+  "_stats": {
+    "systemId": "dnd5e",
+    "systemVersion": "3.1.2",
+    "coreVersion": "11.315",
+    "createdTime": 1721268415087,
+    "modifiedTime": 1721268415087,
+    "lastModifiedBy": "6yhz13iFYYklKtgA"
+  },
+  "_id": "dLj6iwHCeE6ih0XY",
+  "sort": 0,
+  "_key": "!items!dLj6iwHCeE6ih0XY"
+}

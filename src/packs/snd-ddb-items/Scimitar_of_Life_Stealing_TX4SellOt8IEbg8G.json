@@ -1,0 +1,231 @@
+{
+  "name": "Scimitar of Life Stealing",
+  "type": "weapon",
+  "system": {
+    "description": {
+      "value": "<div class=\"ddb\">\n<p>When you attack a creature with this magic weapon and roll a 20 on the attack roll, that target takes an extra 10 &amp;Reference[necrotic]{necrotic} damage if it isn't a &amp;Reference[construct]{construct} or an &amp;Reference[undead]{undead}. You also gain 10 temporary hit points.</p>\n</div>",
+      "chat": ""
+    },
+    "source": {
+      "book": "Player’s Handbook",
+      "page": "",
+      "license": "",
+      "custom": ""
+    },
+    "identified": true,
+    "unidentified": {
+      "description": ""
+    },
+    "container": null,
+    "quantity": 1,
+    "weight": 3,
+    "price": {
+      "value": 0,
+      "denomination": "gp"
+    },
+    "rarity": "rare",
+    "attunement": 1,
+    "equipped": false,
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": "",
+      "units": ""
+    },
+    "cover": null,
+    "crewed": false,
+    "target": {
+      "value": null,
+      "width": null,
+      "units": "",
+      "type": "",
+      "prompt": true
+    },
+    "range": {
+      "value": 5,
+      "long": null,
+      "units": "ft"
+    },
+    "uses": {
+      "value": 0,
+      "max": "",
+      "per": null,
+      "prompt": false,
+      "recovery": ""
+    },
+    "consume": {
+      "type": "",
+      "target": null,
+      "amount": null,
+      "scale": false
+    },
+    "ability": "",
+    "actionType": "mwak",
+    "attack": {
+      "bonus": "",
+      "flat": false
+    },
+    "chatFlavor": "Roll Other damage: [10] 20 on the Attack Roll, Not Construct or Undead",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [
+        [
+          "1d6[slashing] + @mod",
+          "slashing"
+        ]
+      ],
+      "versatile": ""
+    },
+    "formula": "+ 10",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "summons": null,
+    "armor": {
+      "value": null
+    },
+    "hp": {
+      "value": null,
+      "max": null,
+      "dt": null,
+      "conditions": ""
+    },
+    "type": {
+      "value": "martialM",
+      "baseItem": "scimitar"
+    },
+    "magicalBonus": null,
+    "properties": [
+      "fin",
+      "lgt",
+      "mgc"
+    ],
+    "proficient": 0
+  },
+  "flags": {
+    "ddbimporter": {
+      "dndbeyond": {
+        "type": "Scimitar",
+        "damage": {
+          "parts": []
+        },
+        "classFeatures": [],
+        "ability": "str",
+        "restrictions": [
+          "20 on the Attack Roll, Not Construct or Undead"
+        ],
+        "filterType": "Weapon",
+        "isConsumable": false,
+        "isContainer": false,
+        "isCustomItem": false,
+        "isHomebrew": false,
+        "isMonkWeapon": false,
+        "isPack": false,
+        "levelInfusionGranted": null,
+        "tags": [
+          "Healing",
+          "Damage",
+          "Combat"
+        ],
+        "sources": [
+          {
+            "sourceId": 1,
+            "pageNumber": null,
+            "sourceType": 2
+          },
+          {
+            "sourceId": 2,
+            "pageNumber": null,
+            "sourceType": 1
+          }
+        ]
+      },
+      "id": 0,
+      "entityTypeId": 0,
+      "definitionEntityTypeId": 112130694,
+      "definitionId": 5172,
+      "originalName": "Scimitar of Life Stealing",
+      "version": "5.1.27",
+      "effectsApplied": true
+    },
+    "midi-qol": {
+      "removeAttackDamageButtons": "default",
+      "effectCondition": "@workflow.diceRoll === 20 && !([\"construct\", \"undead\"].includes(\"@raceOrType\")) && @item.attunement !== 1",
+      "onUseMacroName": "[postActiveEffects]ItemMacro",
+      "forceCEOff": true
+    },
+    "midiProperties": {
+      "confirmTargets": "default"
+    },
+    "dae": {
+      "macro": {
+        "name": "Scimitar of Life Stealing",
+        "type": "script",
+        "scope": "global",
+        "command": "if (args[0].diceRoll === 20\n  && args[0].itemData.data.attunement !== 1\n  && args[0].otherDamageTotal > (args[0].actor.system.attributes.hp.temp ?? 0)\n) {\n  await args[0].actor.update({ \"system.attributes.hp.temp\": args[0].otherDamageTotal });\n}\n"
+      }
+    }
+  },
+  "effects": [
+    {
+      "icon": "icons/weapons/swords/scimitar-bone.webp",
+      "changes": [],
+      "duration": {
+        "seconds": null,
+        "startTime": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null,
+        "combat": null
+      },
+      "tint": null,
+      "transfer": true,
+      "disabled": false,
+      "flags": {
+        "dae": {
+          "transfer": true,
+          "stackable": "noneName"
+        },
+        "ddbimporter": {
+          "disabled": false
+        },
+        "midi-qol": {
+          "forceCEOff": true
+        },
+        "core": {}
+      },
+      "name": "Scimitar of Life Stealing",
+      "statuses": [],
+      "_id": "MHOBc1tBFUZwe3rk",
+      "description": "",
+      "origin": null,
+      "_key": "!items.effects!TX4SellOt8IEbg8G.MHOBc1tBFUZwe3rk"
+    }
+  ],
+  "img": "icons/weapons/swords/scimitar-bone.webp",
+  "folder": "1JdKHOk7VzfkEI02",
+  "ownership": {
+    "default": 0,
+    "6yhz13iFYYklKtgA": 3
+  },
+  "_stats": {
+    "systemId": "dnd5e",
+    "systemVersion": "3.1.2",
+    "coreVersion": "11.315",
+    "createdTime": 1721268418698,
+    "modifiedTime": 1721268418698,
+    "lastModifiedBy": "6yhz13iFYYklKtgA"
+  },
+  "_id": "TX4SellOt8IEbg8G",
+  "sort": 0,
+  "_key": "!items!TX4SellOt8IEbg8G"
+}
