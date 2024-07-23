@@ -1,3 +1,6 @@
+# v11.0.2
+# New Features
+- Added common items compendium.
 # v11.0.1
 # New Features
 - Added spells and monsters.
