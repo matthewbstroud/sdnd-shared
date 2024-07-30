@@ -1,3 +1,7 @@
+# v11.0.3
+# New Features
+- New mob icons.
+- Add Belt of Dwarvenkind.
 # v11.0.2
 # New Features
 - Added common items compendium.
