@@ -1,3 +1,6 @@
+# v11.0.5
+# Bug Fixes
+- Change crafting materials from consumables to resources.
 # v11.0.4
 # New Features
 - Add crafting materials
