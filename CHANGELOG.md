@@ -1,3 +1,6 @@
+# v11.0.4
+# New Features
+- Add crafting materials
 # v11.0.3
 # New Features
 - New mob icons.
