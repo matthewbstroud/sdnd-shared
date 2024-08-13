@@ -1,3 +1,6 @@
+# v11.0.6
+# New Features
+- Add crafting roll tables.
 # v11.0.5
 # Bug Fixes
 - Change crafting materials from consumables to resources.
