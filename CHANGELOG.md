@@ -1,3 +1,6 @@
+# v11.0.7
+# Bug Fixes
+- Add unidentified descriptions for plants.
 # v11.0.6
 # New Features
 - Add crafting roll tables.
