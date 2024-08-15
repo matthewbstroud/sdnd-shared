@@ -1,3 +1,6 @@
+# v11.0.8
+# New Features
+- Code Blight Icor.
 # v11.0.7
 # Bug Fixes
 - Add unidentified descriptions for plants.
