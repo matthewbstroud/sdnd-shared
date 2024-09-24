@@ -1,3 +1,8 @@
+# v11.0.9
+# Bug Fixes
+- Harvesting
+  - Add required creatures
+  - Fix missing tokens and images
 # v11.0.8
 # New Features
 - Code Blight Icor.
