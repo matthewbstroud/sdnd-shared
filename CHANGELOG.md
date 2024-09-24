@@ -1,3 +1,6 @@
+# v11.0.10
+# Bug Fixes
+- Remove compendium items that have been transferred to Stroud's DnD Helpers
 # v11.0.9
 # Bug Fixes
 - Harvesting
