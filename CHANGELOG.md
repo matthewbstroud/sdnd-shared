@@ -1,3 +1,6 @@
+# v11.1.0
+# New Features
+- Support DND5e 3.3.1
 # v11.0.10
 # Bug Fixes
 - Remove compendium items that have been transferred to Stroud's DnD Helpers
