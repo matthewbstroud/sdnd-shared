@@ -1,3 +1,6 @@
+# v12.1.1
+# Bug Fixes
+- Fix version number.
 # v12.1.0
 # New Features
 - Migrate Compendiums to DND5e 3.3.1
