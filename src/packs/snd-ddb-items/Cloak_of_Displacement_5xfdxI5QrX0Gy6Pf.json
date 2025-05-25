@@ -10,7 +10,8 @@
       "book": "Player’s Handbook",
       "page": "158",
       "license": "",
-      "custom": ""
+      "custom": "",
+      "rules": "2014"
     },
     "identified": true,
     "unidentified": {
@@ -107,7 +108,8 @@
       "conditions": ""
     },
     "strength": 0,
-    "proficient": 1
+    "proficient": 1,
+    "identifier": "cloak-of-displacement"
   },
   "flags": {
     "ddbimporter": {
@@ -170,6 +172,11 @@
         "type": "script",
         "scope": "global",
         "command": "if (args[0] === \"each\") {\n\n  const lastArg = args[args.length - 1];\n  const effectData = {\n    changes: [\n      {\n        key: \"flags.midi-qol.grants.disadvantage.attack.all \",\n        mode: CONST.ACTIVE_EFFECT_MODES.ADD,\n        value: 1,\n        priority: 20,\n      },\n    ],\n    origin: lastArg.origin,\n    disabled: false,\n    icon: lastArg.efData.icon,\n    label: `Cloak of Displacement - Enforced Disadvantage`,\n    name: `Cloak of Displacement - Enforced Disadvantage`,\n  };\n  foundry.utils.setProperty(effectData, \"flags.dae.specialDuration\", [\"isDamaged\", \"turnStartSource\"]);\n  foundry.utils.setProperty(effectData, \"flags.dae.showIcon\", true);\n  await lastArg.actor.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n\n}\n"
+      }
+    },
+    "dnd5e": {
+      "riders": {
+        "activity": []
       }
     }
   },
@@ -239,10 +246,10 @@
   },
   "_stats": {
     "systemId": "dnd5e",
-    "systemVersion": "3.3.1",
-    "coreVersion": "12.331",
+    "systemVersion": "4.4.2",
+    "coreVersion": "12.343",
     "createdTime": 1721268414437,
-    "modifiedTime": 1730038966909,
+    "modifiedTime": 1748178420351,
     "lastModifiedBy": "6yhz13iFYYklKtgA",
     "compendiumSource": null,
     "duplicateSource": null

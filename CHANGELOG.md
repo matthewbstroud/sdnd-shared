@@ -1,3 +1,5 @@
+# v12.4.0
+- Dnd5e v4 support
 # v12.1.1
 # Bug Fixes
 - Fix version number.

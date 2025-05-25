@@ -9,12 +9,15 @@
       "book": "Player’s Handbook",
       "page": "262",
       "license": "",
-      "custom": ""
+      "custom": "",
+      "revision": 1,
+      "rules": "2014"
     },
     "activation": {
       "type": "action",
       "cost": 1,
-      "condition": ""
+      "condition": "",
+      "value": 1
     },
     "duration": {
       "value": "1",
@@ -27,10 +30,17 @@
       "units": "",
       "type": "",
       "width": null,
-      "prompt": true
+      "prompt": true,
+      "affects": {
+        "choice": false
+      },
+      "template": {
+        "units": "",
+        "contiguous": false
+      }
     },
     "range": {
-      "value": 60,
+      "value": "60",
       "long": null,
       "units": "ft"
     },
@@ -38,8 +48,9 @@
       "value": null,
       "max": "",
       "per": null,
-      "recovery": "",
-      "prompt": true
+      "recovery": [],
+      "prompt": true,
+      "spent": 0
     },
     "consume": {
       "type": "",
@@ -90,7 +101,105 @@
     "scaling": {
       "mode": "none",
       "formula": ""
-    }
+    },
+    "activities": {
+      "dnd5eactivity000": {
+        "_id": "dnd5eactivity000",
+        "type": "utility",
+        "activation": {
+          "type": "action",
+          "value": null,
+          "override": false
+        },
+        "consumption": {
+          "targets": [],
+          "scaling": {
+            "allowed": false,
+            "max": ""
+          },
+          "spellSlot": true
+        },
+        "description": {
+          "chatFlavor": ""
+        },
+        "duration": {
+          "units": "inst",
+          "concentration": false,
+          "override": false
+        },
+        "effects": [
+          {
+            "_id": "CQsYZc9qur9v7zaG"
+          }
+        ],
+        "range": {
+          "override": false
+        },
+        "target": {
+          "prompt": true,
+          "template": {
+            "contiguous": false,
+            "units": "ft"
+          },
+          "affects": {
+            "choice": false
+          },
+          "override": false
+        },
+        "uses": {
+          "spent": 0,
+          "max": "",
+          "recovery": []
+        },
+        "roll": {
+          "formula": "",
+          "name": "",
+          "prompt": false,
+          "visible": false
+        },
+        "sort": 0,
+        "useConditionText": "",
+        "useConditionReason": "",
+        "effectConditionText": "",
+        "macroData": {
+          "name": "",
+          "command": ""
+        },
+        "ignoreTraits": {
+          "idi": false,
+          "idr": false,
+          "idv": false,
+          "ida": false
+        },
+        "midiProperties": {
+          "ignoreTraits": [],
+          "triggeredActivityId": "none",
+          "triggeredActivityConditionText": "",
+          "triggeredActivityTargets": "targets",
+          "triggeredActivityRollAs": "self",
+          "forceDialog": false,
+          "confirmTargets": "default",
+          "autoTargetType": "any",
+          "autoTargetAction": "default",
+          "automationOnly": false,
+          "otherActivityCompatible": true,
+          "identifier": "",
+          "displayActivityName": false,
+          "rollMode": "default",
+          "chooseEffects": false,
+          "toggleEffect": false,
+          "ignoreFullCover": false
+        },
+        "isOverTimeFlag": false,
+        "overTimeProperties": {
+          "saveRemoves": true,
+          "preRemoveConditionText": "",
+          "postRemoveConditionText": ""
+        },
+        "otherActivityId": "none"
+      }
+    },
+    "identifier": "mordenkainens-sword"
   },
   "name": "Mordenkainen's Sword",
   "flags": {
@@ -139,6 +248,12 @@
         "type": "script",
         "scope": "global",
         "command": "if (args[0].tag === \"OnUse\" && [\"preTargeting\"].includes(args[0].macroPass)) {\n  args[0].workflow.item.system['target']['type'] = \"self\";\n  args[0].workflow.item.system.range = { value: null, units: \"self\", long: null };\n  return;\n}\n\nconst castItemName = \"Summoned Arcane Sword\";\nconst lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n\nasync function deleteTemplates(actorId) {\n  let removeTemplates = canvas.templates.placeables.filter(\n    (i) => i.flags?.ArcaneSwordRange?.ActorId === actorId\n  );\n  await canvas.scene.deleteEmbeddedDocuments(\"MeasuredTemplate\", removeTemplates.map((t) => t.id));\n}\n\n/**\n * Create Arcane Sword item in inventory\n */\nif (args[0] === \"on\") {\n  const tokenFromUuid = await fromUuid(lastArg.tokenUuid);\n  const casterToken = tokenFromUuid.data || token;\n  const DAEItem = lastArg.efData.flags.dae.itemData;\n  // draw range template\n  await canvas.scene.createEmbeddedDocuments(\"MeasuredTemplate\", [\n    {\n      t: \"circle\",\n      user: game.userId,\n      x: casterToken.x + (canvas.grid.size / 2),\n      y: casterToken.y + (canvas.grid.size / 2),\n      direction: 0,\n      distance: 60,\n      borderColor: \"#FF0000\",\n      flags: {\n        ArcaneSwordRange: {\n          ActorId: targetActor.id,\n        },\n      },\n    },\n  ]);\n\n  const templateData = {\n    t: \"rect\",\n    user: game.user.id,\n    distance: 7,\n    direction: 45,\n    x: 0,\n    y: 0,\n    flags: {\n      ArcaneSword: {\n        ActorId: targetActor.id,\n      },\n    },\n    fillColor: game.user.color,\n    texture: DAEItem.img,\n  };\n  Hooks.once(\"createMeasuredTemplate\", () => deleteTemplates(targetActor.id));\n  const doc = new CONFIG.MeasuredTemplate.documentClass(templateData, { parent: canvas.scene });\n  let template = new game.dnd5e.canvas.AbilityTemplate(doc);\n  template.actorSheet = targetActor.sheet;\n  template.drawPreview();\n\n  const castItem = targetActor.items.find((i) => i.name === castItemName && i.type === \"weapon\");\n  if (!castItem) {\n    const weaponData = {\n      name: castItemName,\n      type: \"weapon\",\n      system: {\n        quantity: 1,\n        activation: { type: \"action\", cost: 1, condition: \"\", },\n        target: { value: 1, type: \"creature\", },\n        range: { value: 5, long: null, units: \"\", },\n        ability: DAEItem.system.ability,\n        attack: {\n          bonus: DAEItem.system.attack.bonus,\n        },\n        actionType: \"msak\",\n        chatFlavor: \"\",\n        critical: null,\n        damage: { parts: [[\"3d10\", \"force\"]], versatile: \"\" },\n        type: {\n          value: \"simpleM\",\n        },\n        properties: [\"mgc\"],\n        proficient: true,\n        equipped: true,\n      },\n      flags: { ArcaneSword: targetActor.id, ddbimporter: { ignoreItemUpdate: true } },\n      img: DAEItem.img,\n    };\n\n    await targetActor.createEmbeddedDocuments(\"Item\", [weaponData]);\n    ui.notifications.notify(\"Weapon created in your inventory\");\n  }\n}\n\n// Delete Arcane Sword\nif (args[0] === \"off\") {\n  let swords = targetActor.items.filter((i) => i.flags?.ArcaneSword === targetActor.id);\n  if (swords.length > 0) await targetActor.deleteEmbeddedDocuments(\"Item\", swords.map((s) => s.id));\n  let templates = canvas.templates.placeables.filter((i) => i.flags?.ArcaneSword?.ActorId === targetActor.id);\n  if (templates.length > 0) await canvas.scene.deleteEmbeddedDocuments(\"MeasuredTemplate\", templates.map((t) => t.id));\n}\n"
+      }
+    },
+    "dnd5e": {
+      "riders": {
+        "activity": [],
+        "effect": []
       }
     }
   },
@@ -209,10 +324,10 @@
   },
   "_stats": {
     "systemId": "dnd5e",
-    "systemVersion": "3.3.1",
-    "coreVersion": "12.331",
+    "systemVersion": "4.4.2",
+    "coreVersion": "12.343",
     "createdTime": 1721274675436,
-    "modifiedTime": 1730039103879,
+    "modifiedTime": 1748179087213,
     "lastModifiedBy": "6yhz13iFYYklKtgA",
     "compendiumSource": null,
     "duplicateSource": null

@@ -9,12 +9,15 @@
       "book": "Player’s Handbook",
       "page": "250",
       "license": "",
-      "custom": ""
+      "custom": "",
+      "revision": 1,
+      "rules": "2014"
     },
     "activation": {
       "type": "minute",
       "cost": 10,
-      "condition": ""
+      "condition": "",
+      "value": 10
     },
     "duration": {
       "value": "",
@@ -27,10 +30,17 @@
       "units": "",
       "type": "",
       "width": null,
-      "prompt": true
+      "prompt": true,
+      "affects": {
+        "choice": false
+      },
+      "template": {
+        "units": "",
+        "contiguous": false
+      }
     },
     "range": {
-      "value": 30,
+      "value": "30",
       "long": null,
       "units": "ft"
     },
@@ -38,8 +48,9 @@
       "value": null,
       "max": "",
       "per": null,
-      "recovery": "",
-      "prompt": true
+      "recovery": [],
+      "prompt": true,
+      "spent": 0
     },
     "consume": {
       "type": "",
@@ -94,7 +105,123 @@
     "scaling": {
       "mode": "none",
       "formula": ""
-    }
+    },
+    "activities": {
+      "dnd5eactivity000": {
+        "_id": "dnd5eactivity000",
+        "type": "damage",
+        "activation": {
+          "type": "action",
+          "value": null,
+          "override": false
+        },
+        "consumption": {
+          "targets": [],
+          "scaling": {
+            "allowed": false,
+            "max": ""
+          },
+          "spellSlot": true
+        },
+        "description": {
+          "chatFlavor": "[2d10 - healing] Increase Hit Point Maximum"
+        },
+        "duration": {
+          "units": "inst",
+          "concentration": false,
+          "override": false
+        },
+        "effects": [
+          {
+            "_id": "QTnFwZZRFFQqiP7E"
+          }
+        ],
+        "range": {
+          "override": false
+        },
+        "target": {
+          "prompt": true,
+          "template": {
+            "contiguous": false,
+            "units": "ft"
+          },
+          "affects": {
+            "choice": false
+          },
+          "override": false
+        },
+        "uses": {
+          "spent": 0,
+          "max": "",
+          "recovery": []
+        },
+        "damage": {
+          "critical": {
+            "allow": false,
+            "bonus": ""
+          },
+          "parts": [
+            {
+              "number": null,
+              "denomination": null,
+              "bonus": "",
+              "types": [
+                "healing"
+              ],
+              "custom": {
+                "enabled": true,
+                "formula": "2d10[healing]"
+              },
+              "scaling": {
+                "mode": "",
+                "number": null,
+                "formula": ""
+              }
+            }
+          ]
+        },
+        "sort": 0,
+        "useConditionText": "",
+        "useConditionReason": "",
+        "effectConditionText": "",
+        "macroData": {
+          "name": "",
+          "command": ""
+        },
+        "ignoreTraits": {
+          "idi": false,
+          "idr": false,
+          "idv": false,
+          "ida": false
+        },
+        "midiProperties": {
+          "ignoreTraits": [],
+          "triggeredActivityId": "none",
+          "triggeredActivityConditionText": "",
+          "triggeredActivityTargets": "targets",
+          "triggeredActivityRollAs": "self",
+          "forceDialog": false,
+          "confirmTargets": "default",
+          "autoTargetType": "any",
+          "autoTargetAction": "default",
+          "automationOnly": false,
+          "otherActivityCompatible": true,
+          "identifier": "",
+          "displayActivityName": false,
+          "rollMode": "default",
+          "chooseEffects": false,
+          "toggleEffect": false,
+          "ignoreFullCover": false
+        },
+        "isOverTimeFlag": false,
+        "overTimeProperties": {
+          "saveRemoves": true,
+          "preRemoveConditionText": "",
+          "postRemoveConditionText": ""
+        }
+      }
+    },
+    "identifier": "heroes-feast"
   },
   "name": "Heroes' Feast",
   "flags": {
@@ -143,6 +270,12 @@
         "type": "script",
         "scope": "global",
         "command": "const lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n\nconst amount = args[1];\n\nasync function updateHP(max, current) {\n  return targetActor.update({ \"system.attributes.hp.max\": max, \"system.attributes.hp.value\": current });\n}\n\n// Update HP and Max HP to roll formula, save result as flag\nif (args[0] === \"on\") {\n  const hpMax = targetActor.system.attributes.hp.max;\n  const hp = targetActor.system.attributes.hp.value;\n  await updateHP(hpMax + amount, hp + amount);\n  ChatMessage.create({ content: `${targetActor.name} gains ${amount} Max HP` });\n  await DAE.setFlag(targetActor, \"heroesFeastSpell\", amount);\n}\n\n// Remove Max Hp and reduce HP to max if needed\nif (args[0] === \"off\") {\n  const amountOff = await DAE.getFlag(targetActor, \"heroesFeastSpell\");\n  const hpMax = targetActor.system.attributes.hp.max;\n  const newHpMax = hpMax - amountOff;\n  const hp = targetActor.system.attributes.hp.value > newHpMax ? newHpMax : targetActor.system.attributes.hp.value;\n  await updateHP(newHpMax, hp);\n  ChatMessage.create({ content: targetActor.name + \"'s Max HP returns to normal\" });\n  DAE.unsetFlag(targetActor, \"heroesFeastSpell\");\n}\n"
+      }
+    },
+    "dnd5e": {
+      "riders": {
+        "activity": [],
+        "effect": []
       }
     }
   },
@@ -229,10 +362,10 @@
   },
   "_stats": {
     "systemId": "dnd5e",
-    "systemVersion": "3.3.1",
-    "coreVersion": "12.331",
+    "systemVersion": "4.4.2",
+    "coreVersion": "12.343",
     "createdTime": 1721274673535,
-    "modifiedTime": 1730039103857,
+    "modifiedTime": 1748179079221,
     "lastModifiedBy": "6yhz13iFYYklKtgA",
     "compendiumSource": null,
     "duplicateSource": null

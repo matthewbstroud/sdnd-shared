@@ -9,12 +9,15 @@
       "book": "Player’s Handbook",
       "page": "",
       "license": "",
-      "custom": ""
+      "custom": "",
+      "revision": 1,
+      "rules": "2014"
     },
     "activation": {
       "type": "action",
       "cost": 1,
-      "condition": ""
+      "condition": "",
+      "value": 1
     },
     "duration": {
       "value": "1",
@@ -27,10 +30,19 @@
       "units": "",
       "type": "creature",
       "width": null,
-      "prompt": true
+      "prompt": true,
+      "affects": {
+        "type": "creature",
+        "count": "1",
+        "choice": false
+      },
+      "template": {
+        "units": "",
+        "contiguous": false
+      }
     },
     "range": {
-      "value": 30,
+      "value": "30",
       "long": null,
       "units": "ft"
     },
@@ -38,8 +50,9 @@
       "value": null,
       "max": "",
       "per": null,
-      "recovery": "",
-      "prompt": true
+      "recovery": [],
+      "prompt": true,
+      "spent": 0
     },
     "consume": {
       "type": "",
@@ -90,7 +103,120 @@
     "scaling": {
       "mode": "none",
       "formula": ""
-    }
+    },
+    "activities": {
+      "dnd5eactivity000": {
+        "_id": "dnd5eactivity000",
+        "type": "save",
+        "activation": {
+          "type": "action",
+          "value": null,
+          "override": false
+        },
+        "consumption": {
+          "targets": [],
+          "scaling": {
+            "allowed": false,
+            "max": ""
+          },
+          "spellSlot": true
+        },
+        "description": {
+          "chatFlavor": ""
+        },
+        "duration": {
+          "units": "inst",
+          "concentration": false,
+          "override": false
+        },
+        "effects": [
+          {
+            "_id": "Yq99odZNA6FULbjf",
+            "onSave": false
+          },
+          {
+            "_id": "fOZIuYWUBjWa0kOC",
+            "onSave": false
+          }
+        ],
+        "range": {
+          "override": false
+        },
+        "target": {
+          "prompt": true,
+          "template": {
+            "contiguous": false,
+            "units": "ft"
+          },
+          "affects": {
+            "choice": false
+          },
+          "override": false
+        },
+        "uses": {
+          "spent": 0,
+          "max": "",
+          "recovery": []
+        },
+        "damage": {
+          "onSave": "half",
+          "parts": [],
+          "critical": {
+            "allow": false
+          }
+        },
+        "save": {
+          "ability": [
+            "wis"
+          ],
+          "dc": {
+            "calculation": "spellcasting",
+            "formula": ""
+          }
+        },
+        "sort": 0,
+        "useConditionText": "",
+        "useConditionReason": "",
+        "effectConditionText": "",
+        "macroData": {
+          "name": "",
+          "command": ""
+        },
+        "ignoreTraits": {
+          "idi": false,
+          "idr": false,
+          "idv": false,
+          "ida": false
+        },
+        "midiProperties": {
+          "ignoreTraits": [],
+          "triggeredActivityId": "none",
+          "triggeredActivityConditionText": "",
+          "triggeredActivityTargets": "targets",
+          "triggeredActivityRollAs": "self",
+          "forceDialog": false,
+          "confirmTargets": "default",
+          "autoTargetType": "any",
+          "autoTargetAction": "default",
+          "automationOnly": false,
+          "otherActivityCompatible": true,
+          "identifier": "",
+          "displayActivityName": false,
+          "rollMode": "default",
+          "chooseEffects": false,
+          "toggleEffect": false,
+          "ignoreFullCover": false
+        },
+        "isOverTimeFlag": false,
+        "overTimeProperties": {
+          "saveRemoves": true,
+          "preRemoveConditionText": "",
+          "postRemoveConditionText": ""
+        },
+        "otherActivityId": ""
+      }
+    },
+    "identifier": "hideous-laughter"
   },
   "name": "Hideous Laughter",
   "flags": {
@@ -139,6 +265,12 @@
         "type": "script",
         "scope": "global",
         "command": "const lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n\nconst DAEItem = lastArg.efData.flags.dae.itemData;\nconst saveData = DAEItem.system.save;\nconst saveDC = (saveData.dc === null || saveData.dc === \"\") && saveData.scaling === \"spell\"\n  ? (await fromUuid(lastArg.efData.origin)).parent.getRollData().attributes.spelldc\n  : saveData.dc;\nconst dcString = saveDC && saveDC !== \"\" ? `DC${saveDC} ` : \"\";\nconst flavor = `${CONFIG.DND5E.abilities[\"wis\"].label} DC${dcString}${DAEItem?.name || \"\"}`;\n\n\nasync function cleanUp() {\n  // cleanup conditions\n  const hasProne = DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(\"Prone\", targetActor);\n  if (hasProne) await game.dfreds.effectInterface.toggleEffect({ effectName: \"Prone\", uuid: targetActor.uuid });\n  const hasIncapacitated = DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(\"Incapacitated\", targetActor);\n  if (hasIncapacitated) await game.dfreds.effectInterface.toggleEffect({ effectName: \"Incapacitated\", uuid: targetActor.uuid });\n  // remove hook\n  const flag = await DAE.getFlag(targetActor, \"hideousLaughterHook\");\n  if (flag) {\n    Hooks.off(\"preUpdateActor\", flag);\n    await DAE.unsetFlag(targetActor, \"hideousLaughterHook\");\n  }\n  // remove effect\n  await targetActor.deleteEmbeddedDocuments(\"ActiveEffect\", [lastArg.effectId]);\n}\n\nasync function onDamageHook(hookActor, update) {\n  const flag = await DAE.getFlag(hookActor, \"hideousLaughterHook\");\n  if (!foundry.utils.hasProperty(update, \"system.attributes.hp\") || !flag) return;\n  const oldHP = hookActor.system.attributes.hp.value;\n  const newHP = foundry.utils.getProperty(update, \"system.attributes.hp.value\");\n  const hpChange = oldHP - newHP;\n  if (hpChange > 0 && typeof hpChange === \"number\") {\n    console.warn(\"hookActor\", hookActor);\n    const saveActor = game.actors.get(hookActor.id);\n    const saveRoll = await saveActor.rollAbilitySave(saveData.ability, {\n      flavor,\n      fastForward: true,\n      advantage: true,\n    });\n    if (saveRoll.total >= saveData.dc) {\n      await cleanUp();\n    }\n  }\n}\n\nif (args[0] === \"on\") {\n  if (targetActor.system.abilities.int.value < 4) {\n    await cleanUp();\n  } else {\n    const hookId = Hooks.on(\"preUpdateActor\", onDamageHook);\n    await DAE.setFlag(targetActor, \"hideousLaughterHook\", hookId);\n  }\n}\n\nif (args[0] === \"off\") {\n  await cleanUp();\n}\n\nif (args[0] === \"each\") {\n  const saveRoll = await targetActor.rollAbilitySave(saveData.ability, { flavor });\n  if (saveRoll.total >= saveData.dc) {\n    await cleanUp();\n  }\n}\n"
+      }
+    },
+    "dnd5e": {
+      "riders": {
+        "activity": [],
+        "effect": []
       }
     }
   },
@@ -274,10 +406,10 @@
   },
   "_stats": {
     "systemId": "dnd5e",
-    "systemVersion": "3.3.1",
-    "coreVersion": "12.331",
+    "systemVersion": "4.4.2",
+    "coreVersion": "12.343",
     "createdTime": 1721274675552,
-    "modifiedTime": 1730039103889,
+    "modifiedTime": 1748179090665,
     "lastModifiedBy": "6yhz13iFYYklKtgA",
     "compendiumSource": null,
     "duplicateSource": null

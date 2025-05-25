@@ -9,12 +9,15 @@
       "book": "Player’s Handbook",
       "page": "219",
       "license": "",
-      "custom": ""
+      "custom": "",
+      "revision": 1,
+      "rules": "2014"
     },
     "activation": {
       "type": "action",
       "cost": 1,
-      "condition": ""
+      "condition": "",
+      "value": 1
     },
     "duration": {
       "value": "1",
@@ -27,10 +30,19 @@
       "units": "",
       "type": "creature",
       "width": null,
-      "prompt": true
+      "prompt": true,
+      "affects": {
+        "type": "creature",
+        "count": "1",
+        "choice": false
+      },
+      "template": {
+        "units": "",
+        "contiguous": false
+      }
     },
     "range": {
-      "value": 30,
+      "value": "30",
       "long": null,
       "units": "ft"
     },
@@ -38,8 +50,9 @@
       "value": null,
       "max": "",
       "per": null,
-      "recovery": "",
-      "prompt": true
+      "recovery": [],
+      "prompt": true,
+      "spent": 0
     },
     "consume": {
       "type": "",
@@ -87,7 +100,116 @@
     "scaling": {
       "mode": "none",
       "formula": ""
-    }
+    },
+    "activities": {
+      "dnd5eactivity000": {
+        "_id": "dnd5eactivity000",
+        "type": "save",
+        "activation": {
+          "type": "action",
+          "value": null,
+          "override": false
+        },
+        "consumption": {
+          "targets": [],
+          "scaling": {
+            "allowed": false,
+            "max": ""
+          },
+          "spellSlot": true
+        },
+        "description": {
+          "chatFlavor": ""
+        },
+        "duration": {
+          "units": "inst",
+          "concentration": false,
+          "override": false
+        },
+        "effects": [
+          {
+            "_id": "BsWGtWGIXGWE778M",
+            "onSave": false
+          }
+        ],
+        "range": {
+          "override": false
+        },
+        "target": {
+          "prompt": true,
+          "template": {
+            "contiguous": false,
+            "units": "ft"
+          },
+          "affects": {
+            "choice": false
+          },
+          "override": false
+        },
+        "uses": {
+          "spent": 0,
+          "max": "",
+          "recovery": []
+        },
+        "damage": {
+          "onSave": "half",
+          "parts": [],
+          "critical": {
+            "allow": false
+          }
+        },
+        "save": {
+          "ability": [
+            "con"
+          ],
+          "dc": {
+            "calculation": "spellcasting",
+            "formula": ""
+          }
+        },
+        "sort": 0,
+        "useConditionText": "",
+        "useConditionReason": "",
+        "effectConditionText": "",
+        "macroData": {
+          "name": "",
+          "command": ""
+        },
+        "ignoreTraits": {
+          "idi": false,
+          "idr": false,
+          "idv": false,
+          "ida": false
+        },
+        "midiProperties": {
+          "ignoreTraits": [],
+          "triggeredActivityId": "none",
+          "triggeredActivityConditionText": "",
+          "triggeredActivityTargets": "targets",
+          "triggeredActivityRollAs": "self",
+          "forceDialog": false,
+          "confirmTargets": "default",
+          "autoTargetType": "any",
+          "autoTargetAction": "default",
+          "automationOnly": false,
+          "otherActivityCompatible": true,
+          "identifier": "",
+          "displayActivityName": false,
+          "rollMode": "default",
+          "chooseEffects": false,
+          "toggleEffect": false,
+          "ignoreFullCover": false
+        },
+        "isOverTimeFlag": false,
+        "overTimeProperties": {
+          "saveRemoves": true,
+          "preRemoveConditionText": "",
+          "postRemoveConditionText": ""
+        },
+        "otherActivityId": ""
+      }
+    },
+    "identifier": "blindness-deafness"
   },
   "name": "Blindness/Deafness",
   "flags": {
@@ -136,6 +258,12 @@
         "type": "script",
         "scope": "global",
         "command": "if (!game.modules.get(\"dfreds-convenient-effects\")?.active) {\n  ui.notifications.error(\"Please enable the CE module\");\n  return;\n}\n\nconst lastArg = args[args.length - 1];\n\nif (lastArg.tag === \"OnUse\") {\n  if (lastArg.targets.length < 1) {\n    ui.notifications.error(\"Blindness/Deafness: No target selected: unable to automate effect.\");\n    return;\n  }\n  new Dialog({\n    title: \"Choose an Effect\",\n    buttons: {\n      blind: {\n        label: \"Blindness\",\n        callback: () => {\n          lastArg.targets.forEach((targetToken) => {\n            const targetActor = targetToken.actor;\n            DAE.setFlag(targetActor, \"DAEBlind\", \"blind\");\n            game.dfreds.effectInterface.addEffect({ effectName: \"Blinded\", uuid: targetActor.uuid });\n            const changes = [\n              {\n                key: \"ATL.sight.range\",\n                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,\n                priority: 99,\n                value: \"0\",\n              },\n            ];\n            const effectName = lastArg.itemData.effects[0].name;\n            const effect = DDBImporter.EffectHelper.findEffect(targetActor, effectName);\n            // console.warn(\"effect\", {effect, effectName});\n            effect.update({ changes: changes.concat(effect.changes) });\n          });\n        },\n      },\n      deaf: {\n        label: \"Deafness\",\n        callback: () => {\n          lastArg.targets.forEach((targetToken) => {\n            const targetActor = targetToken.actor;\n            DAE.setFlag(targetActor, \"DAEBlind\", \"deaf\");\n            game.dfreds.effectInterface.addEffect({ effectName: \"Deafened\", uuid: targetActor.uuid });\n          });\n        },\n      },\n    },\n  }).render(true);\n}\n\nif (args[0] === \"off\") {\n  const tokenOrActor = await fromUuid(lastArg.actorUuid);\n  const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n  let flag = DAE.getFlag(targetActor, \"DAEBlind\");\n  if (flag === \"blind\") {\n    if (DDBImporter.EffectHelper.effectConditionAppliedAndActive(\"Blinded\", targetActor))\n      game.dfreds.effectInterface.removeEffect({ effectName: \"Blinded\", uuid: targetActor.uuid });\n  } else if (flag === \"deaf\") {\n    if (DDBImporter.EffectHelper.effectConditionAppliedAndActive(\"Deafened\", targetActor))\n      game.dfreds.effectInterface.removeEffect({ effectName: \"Deafened\", uuid: targetActor.uuid });\n  }\n  DAE.unsetFlag(targetActor, \"DAEBlind\");\n}\n"
+      }
+    },
+    "dnd5e": {
+      "riders": {
+        "activity": [],
+        "effect": []
       }
     }
   },
@@ -210,10 +338,10 @@
   },
   "_stats": {
     "systemId": "dnd5e",
-    "systemVersion": "3.3.1",
-    "coreVersion": "12.331",
+    "systemVersion": "4.4.2",
+    "coreVersion": "12.343",
     "createdTime": 1721274673227,
-    "modifiedTime": 1730039103867,
+    "modifiedTime": 1748179082928,
     "lastModifiedBy": "6yhz13iFYYklKtgA",
     "compendiumSource": null,
     "duplicateSource": null

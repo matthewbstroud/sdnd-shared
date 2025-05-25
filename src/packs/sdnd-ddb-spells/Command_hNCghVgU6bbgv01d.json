@@ -9,12 +9,15 @@
       "book": "Player’s Handbook",
       "page": "223",
       "license": "",
-      "custom": ""
+      "custom": "",
+      "revision": 1,
+      "rules": "2014"
     },
     "activation": {
       "type": "action",
       "cost": 1,
-      "condition": ""
+      "condition": "",
+      "value": 1
     },
     "duration": {
       "value": "1",
@@ -27,10 +30,19 @@
       "units": "",
       "type": "creature",
       "width": null,
-      "prompt": true
+      "prompt": true,
+      "affects": {
+        "type": "creature",
+        "count": "1",
+        "choice": false
+      },
+      "template": {
+        "units": "",
+        "contiguous": false
+      }
     },
     "range": {
-      "value": 60,
+      "value": "60",
       "long": null,
       "units": "ft"
     },
@@ -38,8 +50,9 @@
       "value": null,
       "max": "",
       "per": null,
-      "recovery": "",
-      "prompt": true
+      "recovery": [],
+      "prompt": true,
+      "spent": 0
     },
     "consume": {
       "type": "",
@@ -87,7 +100,116 @@
     "scaling": {
       "mode": "none",
       "formula": ""
-    }
+    },
+    "activities": {
+      "dnd5eactivity000": {
+        "_id": "dnd5eactivity000",
+        "type": "save",
+        "activation": {
+          "type": "action",
+          "value": null,
+          "override": false
+        },
+        "consumption": {
+          "targets": [],
+          "scaling": {
+            "allowed": false,
+            "max": ""
+          },
+          "spellSlot": true
+        },
+        "description": {
+          "chatFlavor": ""
+        },
+        "duration": {
+          "units": "inst",
+          "concentration": false,
+          "override": false
+        },
+        "effects": [
+          {
+            "_id": "AyONgnEWlojwSpNu",
+            "onSave": false
+          }
+        ],
+        "range": {
+          "override": false
+        },
+        "target": {
+          "prompt": true,
+          "template": {
+            "contiguous": false,
+            "units": "ft"
+          },
+          "affects": {
+            "choice": false
+          },
+          "override": false
+        },
+        "uses": {
+          "spent": 0,
+          "max": "",
+          "recovery": []
+        },
+        "damage": {
+          "onSave": "half",
+          "parts": [],
+          "critical": {
+            "allow": false
+          }
+        },
+        "save": {
+          "ability": [
+            "wis"
+          ],
+          "dc": {
+            "calculation": "spellcasting",
+            "formula": ""
+          }
+        },
+        "sort": 0,
+        "useConditionText": "",
+        "useConditionReason": "",
+        "effectConditionText": "",
+        "macroData": {
+          "name": "",
+          "command": ""
+        },
+        "ignoreTraits": {
+          "idi": false,
+          "idr": false,
+          "idv": false,
+          "ida": false
+        },
+        "midiProperties": {
+          "ignoreTraits": [],
+          "triggeredActivityId": "none",
+          "triggeredActivityConditionText": "",
+          "triggeredActivityTargets": "targets",
+          "triggeredActivityRollAs": "self",
+          "forceDialog": false,
+          "confirmTargets": "default",
+          "autoTargetType": "any",
+          "autoTargetAction": "default",
+          "automationOnly": false,
+          "otherActivityCompatible": true,
+          "identifier": "",
+          "displayActivityName": false,
+          "rollMode": "default",
+          "chooseEffects": false,
+          "toggleEffect": false,
+          "ignoreFullCover": false
+        },
+        "isOverTimeFlag": false,
+        "overTimeProperties": {
+          "saveRemoves": true,
+          "preRemoveConditionText": "",
+          "postRemoveConditionText": ""
+        },
+        "otherActivityId": ""
+      }
+    },
+    "identifier": "command"
   },
   "name": "Command",
   "flags": {
@@ -136,6 +258,12 @@
         "type": "script",
         "scope": "global",
         "command": "if (args[0].macroPass === \"postSave\" && workflow.failedSaves) {\n  let targets = workflow.failedSaves;\n  const commandWord = await globalThis.DDBImporter.DialogHelper.ChooserDialog.Ask(\n    [\n      {\n        label: \"What do you command?\",\n        type: \"text\",\n        value: \"\",\n        options: [\"\"]\n      }\n    ],\n    [\n      {\n        label: \"Cast!\",\n        value: \"1\",\n      }\n    ],\n    { title: \"🗣Command Spell\" }\n  );\n\n  for (let target of targets) {\n    MidiQOL.socket().executeAsGM(\"_gmSetFlag\", {\n      actorUuid: target.actor.uuid,\n      base: \"midi-qol\",\n      key: \"commandWord\",\n      value: commandWord.results[0],\n    });\n  }\n}\nif (args[0] === \"off\") {\n  let wordInput = await actor.getFlag(\"midi-qol\", \"commandWord\");\n  let content = `${actor.name} must use their action to \"${wordInput}\".`;\n  let actorPlayer = MidiQOL.playerForActor(actor);\n  let chatData = {\n    user: actorPlayer.id,\n    speaker: ChatMessage.getSpeaker({ token: token }),\n    content: content,\n  };\n  ChatMessage.create(chatData);\n  MidiQOL.socket().executeAsGM(\"_gmUnsetFlag\", { actorUuid: actor.uuid, base: \"midi-qol\", key: \"commandWord\" });\n}\n"
+      }
+    },
+    "dnd5e": {
+      "riders": {
+        "activity": [],
+        "effect": []
       }
     }
   },
@@ -207,10 +335,10 @@
   },
   "_stats": {
     "systemId": "dnd5e",
-    "systemVersion": "3.3.1",
-    "coreVersion": "12.331",
+    "systemVersion": "4.4.2",
+    "coreVersion": "12.343",
     "createdTime": 1721274673247,
-    "modifiedTime": 1730039103888,
+    "modifiedTime": 1748179090376,
     "lastModifiedBy": "6yhz13iFYYklKtgA",
     "compendiumSource": null,
     "duplicateSource": null
