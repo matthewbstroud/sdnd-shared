@@ -9,12 +9,15 @@
       "book": "Player’s Handbook",
       "page": "234",
       "license": "",
-      "custom": ""
+      "custom": "",
+      "revision": 1,
+      "rules": "2014"
     },
     "activation": {
       "type": "bonus",
       "cost": 1,
-      "condition": ""
+      "condition": "",
+      "value": 1
     },
     "duration": {
       "value": "",
@@ -27,10 +30,19 @@
       "units": "",
       "type": "creature",
       "width": null,
-      "prompt": true
+      "prompt": true,
+      "affects": {
+        "type": "creature",
+        "count": "1",
+        "choice": false
+      },
+      "template": {
+        "units": "",
+        "contiguous": false
+      }
     },
     "range": {
-      "value": 30,
+      "value": "30",
       "long": null,
       "units": "ft"
     },
@@ -38,8 +50,9 @@
       "value": null,
       "max": "",
       "per": null,
-      "recovery": "",
-      "prompt": true
+      "recovery": [],
+      "prompt": true,
+      "spent": 0
     },
     "consume": {
       "type": "",
@@ -87,7 +100,116 @@
     "scaling": {
       "mode": "none",
       "formula": ""
-    }
+    },
+    "activities": {
+      "dnd5eactivity000": {
+        "_id": "dnd5eactivity000",
+        "type": "save",
+        "activation": {
+          "type": "action",
+          "value": null,
+          "override": false
+        },
+        "consumption": {
+          "targets": [],
+          "scaling": {
+            "allowed": false,
+            "max": ""
+          },
+          "spellSlot": true
+        },
+        "description": {
+          "chatFlavor": ""
+        },
+        "duration": {
+          "units": "inst",
+          "concentration": false,
+          "override": false
+        },
+        "effects": [
+          {
+            "_id": "WByN0pqor9sWZkIS",
+            "onSave": false
+          }
+        ],
+        "range": {
+          "override": false
+        },
+        "target": {
+          "prompt": true,
+          "template": {
+            "contiguous": false,
+            "units": "ft"
+          },
+          "affects": {
+            "choice": false
+          },
+          "override": false
+        },
+        "uses": {
+          "spent": 0,
+          "max": "",
+          "recovery": []
+        },
+        "damage": {
+          "onSave": "half",
+          "parts": [],
+          "critical": {
+            "allow": false
+          }
+        },
+        "save": {
+          "ability": [
+            "cha"
+          ],
+          "dc": {
+            "calculation": "spellcasting",
+            "formula": ""
+          }
+        },
+        "sort": 0,
+        "useConditionText": "",
+        "useConditionReason": "",
+        "effectConditionText": "",
+        "macroData": {
+          "name": "",
+          "command": ""
+        },
+        "ignoreTraits": {
+          "idi": false,
+          "idr": false,
+          "idv": false,
+          "ida": false
+        },
+        "midiProperties": {
+          "ignoreTraits": [],
+          "triggeredActivityId": "none",
+          "triggeredActivityConditionText": "",
+          "triggeredActivityTargets": "targets",
+          "triggeredActivityRollAs": "self",
+          "forceDialog": false,
+          "confirmTargets": "default",
+          "autoTargetType": "any",
+          "autoTargetAction": "default",
+          "automationOnly": false,
+          "otherActivityCompatible": true,
+          "identifier": "",
+          "displayActivityName": false,
+          "rollMode": "default",
+          "chooseEffects": false,
+          "toggleEffect": false,
+          "ignoreFullCover": false
+        },
+        "isOverTimeFlag": false,
+        "overTimeProperties": {
+          "saveRemoves": true,
+          "preRemoveConditionText": "",
+          "postRemoveConditionText": ""
+        },
+        "otherActivityId": ""
+      }
+    },
+    "identifier": "divine-word"
   },
   "name": "Divine Word",
   "flags": {
@@ -137,6 +259,12 @@
         "type": "script",
         "scope": "global",
         "command": "const lastArg = args[args.length - 1];\n\n// DAE Macro Execute, Effect Value = \"Macro Name\"\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\nconst targetToken = await fromUuid(lastArg.tokenUuid);\n\nfunction effectAppliedAndActive(conditionName) {\n  return targetToken.effects.some(\n    (activeEffect) =>\n      activeEffect?.flags?.isConvenient\n      && (activeEffect?.name ?? activeEffect?.label) == conditionName\n      && !activeEffect?.disabled\n  );\n}\n\nasync function DivineWordApply(target, targetHp) {\n  if (targetHp <= 20) {\n    await target.actor.update({ \"system.attributes.hp.value\": 0 });\n  } else {\n    if (targetHp <= 30) {\n      const hasStunned = effectAppliedAndActive(\"Stunned\");\n      if (!hasStunned) await game.dfreds.effectInterface.toggleEffect(\"Stunned\", { uuids: [targetActor.uuid] });\n      game.Gametime.doIn({ hours: 1 }, async () => {\n        await game.dfreds.effectInterface.removeEffect({ effectName: \"Stunned\", uuid: targetActor.uuid });\n      });\n    }\n    if (targetHp <= 40) {\n      const hasBlinded = effectAppliedAndActive(\"Blinded\");\n      if (!hasBlinded) await game.dfreds.effectInterface.toggleEffect(\"Blinded\", { uuids: [targetActor.uuid] });\n      game.Gametime.doIn({ hours: 1 }, async () => {\n        await game.dfreds.effectInterface.removeEffect({ effectName: \"Blinded\", uuid: [targetActor.uuid] });\n      });\n    }\n    if (targetHp <= 50) {\n      const hasDeafened = effectAppliedAndActive(\"Deafened\");\n      if (!hasDeafened) await game.dfreds.effectInterface.toggleEffect(\"Deafened\", { uuids: [targetActor.uuid] });\n      game.Gametime.doIn({ hours: 1 }, async () => {\n        await game.dfreds.effectInterface.removeEffect({ effectName: \"Deafened\", uuid: targetActor.uuid });\n      });\n    }\n  }\n}\nif (args[0] === \"on\") {\n  DivineWordApply(targetToken, targetToken.actor.system.attributes.hp.value);\n}\n"
+      }
+    },
+    "dnd5e": {
+      "riders": {
+        "activity": [],
+        "effect": []
       }
     }
   },
@@ -205,10 +333,10 @@
   },
   "_stats": {
     "systemId": "dnd5e",
-    "systemVersion": "3.3.1",
-    "coreVersion": "12.331",
+    "systemVersion": "4.4.2",
+    "coreVersion": "12.343",
     "createdTime": 1721274673385,
-    "modifiedTime": 1730039103886,
+    "modifiedTime": 1748179089833,
     "lastModifiedBy": "6yhz13iFYYklKtgA",
     "compendiumSource": null,
     "duplicateSource": null

@@ -10,7 +10,8 @@
       "book": "Player’s Handbook",
       "page": "184",
       "license": "",
-      "custom": ""
+      "custom": "",
+      "rules": "2014"
     },
     "identified": true,
     "unidentified": {
@@ -107,7 +108,8 @@
       "conditions": ""
     },
     "strength": 0,
-    "proficient": 1
+    "proficient": 1,
+    "identifier": "pearl-of-power"
   },
   "flags": {
     "ddbimporter": {
@@ -163,6 +165,11 @@
         "type": "script",
         "scope": "global",
         "command": "if (args[0] !== \"on\") return;\n\nconst lastArg = args[args.length - 1];\nconst tActor = await fromUuid(lastArg.actorUuid);\n\nasync function regainSlot(level) {\n  const currentSpellValue = tActor.system.spells[`spell${level}`].value;\n  if (currentSpellValue + 1 > tActor.system.spells[`spell${level}`].max) {\n    ui.notifications.warn(`You already have the maximum spells available for level ${level}`);\n  } else {\n    await tActor.update({ [`system.spells.spell${level}.value`]: currentSpellValue + 1 });\n    await ChatMessage.create({\n      content: `${tActor.name} has recovered one spell slot of <b><u>Level ${level}</u>.`,\n    });\n  }\n}\n\nconst buttons = {};\n\nfor (let i = 1; i <= 3; i++) {\n  const currentSpellValue = tActor.system.spells[`spell${i}`].value;\n  const maxSpellValue = tActor.system.spells[`spell${i}`].max;\n  if (currentSpellValue < maxSpellValue) buttons[`spell${i}`] = {\n    label: `Level ${i}`,\n    callback: () => regainSlot(i),\n  };\n}\n\nif (!Object.keys(buttons).length) {\n  ui.notifications.warn(\"You have no appropriate spell slots to recover\");\n  return;\n}\n\nnew Dialog({\n  content: `\n    <br>\n    You can regain a single spent spell slot, you have used:\n    <br>\n    <br>\n    - ${tActor.system.spells.spell1.max - tActor.system.spells.spell1.value} first level spells\n    <br>\n    - ${tActor.system.spells.spell2.max - tActor.system.spells.spell2.value} second level spells\n    <br>\n    - ${tActor.system.spells.spell3.max - tActor.system.spells.spell3.value} third level spells\n    <br>\n    <br>\n    Please select below which slot to recover:\n    <br>\n    <br>\n     `,\n  buttons,\n}).render(true);\n"
+      }
+    },
+    "dnd5e": {
+      "riders": {
+        "activity": []
       }
     }
   },
@@ -233,10 +240,10 @@
   },
   "_stats": {
     "systemId": "dnd5e",
-    "systemVersion": "3.3.1",
-    "coreVersion": "12.331",
+    "systemVersion": "4.4.2",
+    "coreVersion": "12.343",
     "createdTime": 1721268415087,
-    "modifiedTime": 1730038967002,
+    "modifiedTime": 1748178485835,
     "lastModifiedBy": "6yhz13iFYYklKtgA",
     "compendiumSource": null,
     "duplicateSource": null

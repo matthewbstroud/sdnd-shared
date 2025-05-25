@@ -10,7 +10,9 @@
       "book": "Player’s Handbook",
       "page": "178",
       "license": "",
-      "custom": ""
+      "custom": "",
+      "revision": 1,
+      "rules": "2014"
     },
     "identified": true,
     "unidentified": {
@@ -18,13 +20,16 @@
     },
     "container": null,
     "quantity": 1,
-    "weight": 2,
+    "weight": {
+      "value": 2,
+      "units": "lb"
+    },
     "price": {
       "value": 400,
       "denomination": "gp"
     },
     "rarity": "uncommon",
-    "attunement": 0,
+    "attunement": "",
     "equipped": false,
     "activation": {
       "type": "action",
@@ -47,14 +52,16 @@
     "range": {
       "value": 30,
       "long": 120,
-      "units": "ft"
+      "units": "ft",
+      "reach": null
     },
     "uses": {
       "value": null,
       "max": "",
       "per": null,
-      "recovery": "",
-      "prompt": true
+      "recovery": [],
+      "prompt": true,
+      "spent": 0
     },
     "consume": {
       "type": "",
@@ -80,7 +87,38 @@
           "piercing"
         ]
       ],
-      "versatile": ""
+      "versatile": {
+        "number": null,
+        "denomination": null,
+        "bonus": "",
+        "types": [],
+        "custom": {
+          "enabled": false,
+          "formula": ""
+        },
+        "scaling": {
+          "mode": "",
+          "number": null,
+          "formula": ""
+        }
+      },
+      "base": {
+        "number": null,
+        "denomination": null,
+        "bonus": "",
+        "types": [
+          "piercing"
+        ],
+        "custom": {
+          "enabled": true,
+          "formula": "1d6[piercing] + @mod"
+        },
+        "scaling": {
+          "mode": "",
+          "number": null,
+          "formula": ""
+        }
+      }
     },
     "formula": "",
     "save": {
@@ -107,7 +145,137 @@
       "thr",
       "mgc"
     ],
-    "proficient": 0
+    "proficient": 0,
+    "activities": {
+      "dnd5eactivity000": {
+        "_id": "dnd5eactivity000",
+        "type": "attack",
+        "activation": {
+          "type": "action",
+          "value": 1,
+          "condition": "",
+          "override": false
+        },
+        "consumption": {
+          "targets": [],
+          "scaling": {
+            "allowed": false,
+            "max": ""
+          },
+          "spellSlot": true
+        },
+        "description": {
+          "chatFlavor": "Roll Other damage: [4d6] On Hit or DC 13 Dexterity Save for Half Damage"
+        },
+        "duration": {
+          "concentration": false,
+          "value": "",
+          "units": "",
+          "special": "",
+          "override": false
+        },
+        "effects": [
+          {
+            "_id": "xt7Lzp7xM8f6EZi7"
+          }
+        ],
+        "range": {
+          "value": "30",
+          "units": "ft",
+          "special": "",
+          "override": false
+        },
+        "target": {
+          "template": {
+            "count": "",
+            "contiguous": false,
+            "type": "",
+            "size": "",
+            "width": "",
+            "height": "",
+            "units": ""
+          },
+          "affects": {
+            "count": "",
+            "type": "",
+            "choice": false,
+            "special": ""
+          },
+          "prompt": true,
+          "override": false
+        },
+        "uses": {
+          "spent": 0,
+          "max": "",
+          "recovery": []
+        },
+        "attack": {
+          "ability": "",
+          "bonus": "",
+          "critical": {
+            "threshold": null
+          },
+          "flat": false,
+          "type": {
+            "value": "melee",
+            "classification": "weapon"
+          }
+        },
+        "damage": {
+          "critical": {
+            "bonus": ""
+          },
+          "includeBase": true,
+          "parts": []
+        },
+        "sort": 0,
+        "useConditionText": "",
+        "useConditionReason": "",
+        "effectConditionText": "",
+        "macroData": {
+          "name": "",
+          "command": ""
+        },
+        "ignoreTraits": {
+          "idi": false,
+          "idr": false,
+          "idv": false,
+          "ida": false
+        },
+        "midiProperties": {
+          "ignoreTraits": [],
+          "triggeredActivityId": "none",
+          "triggeredActivityConditionText": "",
+          "triggeredActivityTargets": "targets",
+          "triggeredActivityRollAs": "self",
+          "forceDialog": false,
+          "confirmTargets": "default",
+          "autoTargetType": "any",
+          "autoTargetAction": "default",
+          "automationOnly": false,
+          "otherActivityCompatible": true,
+          "identifier": "",
+          "displayActivityName": false,
+          "rollMode": "default",
+          "chooseEffects": false,
+          "toggleEffect": false,
+          "ignoreFullCover": false
+        },
+        "isOverTimeFlag": false,
+        "overTimeProperties": {
+          "saveRemoves": true,
+          "preRemoveConditionText": "",
+          "postRemoveConditionText": ""
+        },
+        "otherActivityId": "",
+        "attackMode": "oneHanded",
+        "ammunition": "",
+        "otherActivityUuid": ""
+      }
+    },
+    "identifier": "javelin-of-lightning",
+    "attuned": false,
+    "ammunition": {}
   },
   "flags": {
     "ddbimporter": {
@@ -177,6 +345,12 @@
         "type": "script",
         "scope": "global",
         "command": "// based on a macro by @Chris#8375\nif ([\"on\", \"off\"].includes(args[0])) {\n  const lastArg = args[args.length - 1];\n  const tokenOrActor = await fromUuid(lastArg.actorUuid);\n  const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n  const item = targetActor.items.find((i) => i.name === args[1]);\n  if (item) {\n    if (args[0] === \"off\") await item.setFlag(\"world\", \"boltUsed\", false);\n    await item.setFlag(\"world\", \"useBolt\", false);\n  }\n  return;\n}\n\nconst workflow = args[0].workflow;\n\nif (workflow.targets.size === 0) return;\n\nasync function useBolt() {\n  return new Promise((resolve) => {\n    new Dialog({\n      title: \"Use Bolt of Lightning?\",\n      content: \"<p>Use Bolt of Lightning?</p>\",\n      buttons: {\n        yes: {\n          label: \"Yes\",\n          callback: async () => {\n            await workflow.item.setFlag(\"world\", \"useBolt\", true);\n            resolve(this);\n          },\n        },\n        no: {\n          label: \"No\",\n          callback: async () => {\n            resolve(this);\n          },\n        },\n      },\n    }).render(true);\n  });\n}\n\nif (args[0].macroPass === \"postActiveEffects\") {\n  if (!workflow.item.flags.world?.useBolt) return;\n  const targetToken = workflow.targets.first();\n  const sourceToken = workflow.token;\n  await workflow.item.setFlag(\"world\", \"boltUsed\", true);\n  const ray = new Ray(sourceToken.center, targetToken.center);\n  if (ray.distance === 0) return;\n  const templateData = {\n    angle: 0,\n    direction: Math.toDegrees(ray.angle),\n    distance: (ray.distance / canvas.scene.grid.size) * 5,\n    x: ray.A.x,\n    y: ray.A.y,\n    t: \"ray\",\n    user: game.user,\n    fillColor: game.user.color,\n    width: 5,\n    flags: {\n      tokenmagic: {\n        options: {\n          tmfxPreset: \"Shock\",\n          tmfxTextureAlpha: 0.5,\n        },\n      },\n    },\n  };\n  const changes = await canvas.scene.createEmbeddedDocuments(\"MeasuredTemplate\", [templateData]);\n  await DDBImporter?.EffectHelper.wait(500);\n  const templateDoc = changes[0];\n  // console.warn(\"TEMPLATE\", templateDoc);\n  const boltEffectData = {\n    label: `${workflow.item.name}: Bolt Template`,\n    name: `${workflow.item.name}: Bolt Template`,\n    icon: \"icons/magic/lightning/bolt-forked-large-blue-yellow.webp\",\n    changes: [\n      {\n        key: \"flags.dae.deleteUuid\",\n        mode: 5,\n        priority: 20,\n        value: templateDoc.uuid,\n      },\n    ],\n    duration: {\n      seconds: 1,\n    },\n  };\n  await await MidiQOL.socket().executeAsGM(\"createEffects\", {\n    actorUuid: sourceToken.actor.uuid,\n    effects: [boltEffectData],\n  });\n  const templateTokenIds = DDBImporter?.EffectHelper.findContainedTokensInTemplate(templateDoc) ?? [];\n\n  const targetTokens = [];\n  for (const i of templateTokenIds) {\n    if (i === sourceToken.id || i === targetToken.id) continue;\n    targetTokens.push(canvas.scene.tokens.get(i).uuid);\n  }\n\n  if (targetTokens.length > 0) {\n    const lightningBoltData = foundry.utils.duplicate(workflow.item);\n    delete lightningBoltData.effects;\n    delete lightningBoltData._id;\n    delete lightningBoltData.flags[\"midi-qol\"].onUseMacroName;\n    delete lightningBoltData.flags[\"midi-qol\"].onUseMacroParts;\n    if (foundry.utils.hasProperty(lightningBoltData, \"flags.itemacro\")) delete lightningBoltData.flags.itemacro;\n    if (foundry.utils.hasProperty(lightningBoltData, \"flags.dae.macro\")) delete lightningBoltData.flags.dae.macro;\n    lightningBoltData.name +=  \": Bolt\";\n    lightningBoltData.system.damage.parts = [[\"4d6[lightning]\", \"lightning\"]];\n    lightningBoltData.system.actionType = \"save\";\n    lightningBoltData.system.save.ability = \"dex\";\n    lightningBoltData.system.save.dc = 13;\n    lightningBoltData.system.save.scaling = \"flat\";\n    const areaSpell = new CONFIG.Item.documentClass(lightningBoltData, { parent: workflow.actor });\n    const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: targetTokens });\n\n    // console.warn(\"Midi Options\", {\n    //   areaSpell,\n    //   options,\n    //   targetTokens,\n    //   lightningBoltData,\n    // })\n    await MidiQOL.completeItemUse(areaSpell, config, options);\n  }\n} else if (args[0].macroPass === \"postDamageRoll\") {\n  if (!workflow.item.flags.world?.useBolt) return;\n  const diceNum = workflow.isCritical ? 8 : 4;\n  const formula = `${workflow.damageRoll._formula} + ${diceNum}d6[lightning]`;\n  const damageRoll = await new CONFIG.Dice.DamageRoll(formula).roll({ async: true });\n  await workflow.setDamageRoll(damageRoll);\n} else if (args[0].macroPass === \"preAttackRoll\") {\n  if (workflow.item.getFlag(\"world\", \"boltUsed\")) return;\n  await useBolt();\n}\n"
+      }
+    },
+    "dnd5e": {
+      "riders": {
+        "activity": [],
+        "effect": []
       }
     }
   },
@@ -251,10 +425,10 @@
   },
   "_stats": {
     "systemId": "dnd5e",
-    "systemVersion": "3.3.1",
-    "coreVersion": "12.331",
+    "systemVersion": "4.4.2",
+    "coreVersion": "12.343",
     "createdTime": 1721268414865,
-    "modifiedTime": 1730038967050,
+    "modifiedTime": 1748178525297,
     "lastModifiedBy": "6yhz13iFYYklKtgA",
     "compendiumSource": null,
     "duplicateSource": null

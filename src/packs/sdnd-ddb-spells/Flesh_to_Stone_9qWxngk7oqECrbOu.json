@@ -9,12 +9,15 @@
       "book": "Player’s Handbook",
       "page": "243",
       "license": "",
-      "custom": ""
+      "custom": "",
+      "revision": 1,
+      "rules": "2014"
     },
     "activation": {
       "type": "action",
       "cost": 1,
-      "condition": ""
+      "condition": "",
+      "value": 1
     },
     "duration": {
       "value": "1",
@@ -27,10 +30,19 @@
       "units": "",
       "type": "creature",
       "width": null,
-      "prompt": true
+      "prompt": true,
+      "affects": {
+        "type": "creature",
+        "count": "1",
+        "choice": false
+      },
+      "template": {
+        "units": "",
+        "contiguous": false
+      }
     },
     "range": {
-      "value": 60,
+      "value": "60",
       "long": null,
       "units": "ft"
     },
@@ -38,8 +50,9 @@
       "value": null,
       "max": "",
       "per": null,
-      "recovery": "",
-      "prompt": true
+      "recovery": [],
+      "prompt": true,
+      "spent": 0
     },
     "consume": {
       "type": "",
@@ -90,7 +103,116 @@
     "scaling": {
       "mode": "none",
       "formula": ""
-    }
+    },
+    "activities": {
+      "dnd5eactivity000": {
+        "_id": "dnd5eactivity000",
+        "type": "save",
+        "activation": {
+          "type": "action",
+          "value": null,
+          "override": false
+        },
+        "consumption": {
+          "targets": [],
+          "scaling": {
+            "allowed": false,
+            "max": ""
+          },
+          "spellSlot": true
+        },
+        "description": {
+          "chatFlavor": ""
+        },
+        "duration": {
+          "units": "inst",
+          "concentration": false,
+          "override": false
+        },
+        "effects": [
+          {
+            "_id": "ESmdb3TWvXo0dVbv",
+            "onSave": false
+          }
+        ],
+        "range": {
+          "override": false
+        },
+        "target": {
+          "prompt": true,
+          "template": {
+            "contiguous": false,
+            "units": "ft"
+          },
+          "affects": {
+            "choice": false
+          },
+          "override": false
+        },
+        "uses": {
+          "spent": 0,
+          "max": "",
+          "recovery": []
+        },
+        "damage": {
+          "onSave": "half",
+          "parts": [],
+          "critical": {
+            "allow": false
+          }
+        },
+        "save": {
+          "ability": [
+            "con"
+          ],
+          "dc": {
+            "calculation": "spellcasting",
+            "formula": ""
+          }
+        },
+        "sort": 0,
+        "useConditionText": "",
+        "useConditionReason": "",
+        "effectConditionText": "",
+        "macroData": {
+          "name": "",
+          "command": ""
+        },
+        "ignoreTraits": {
+          "idi": false,
+          "idr": false,
+          "idv": false,
+          "ida": false
+        },
+        "midiProperties": {
+          "ignoreTraits": [],
+          "triggeredActivityId": "none",
+          "triggeredActivityConditionText": "",
+          "triggeredActivityTargets": "targets",
+          "triggeredActivityRollAs": "self",
+          "forceDialog": false,
+          "confirmTargets": "default",
+          "autoTargetType": "any",
+          "autoTargetAction": "default",
+          "automationOnly": false,
+          "otherActivityCompatible": true,
+          "identifier": "",
+          "displayActivityName": false,
+          "rollMode": "default",
+          "chooseEffects": false,
+          "toggleEffect": false,
+          "ignoreFullCover": false
+        },
+        "isOverTimeFlag": false,
+        "overTimeProperties": {
+          "saveRemoves": true,
+          "preRemoveConditionText": "",
+          "postRemoveConditionText": ""
+        },
+        "otherActivityId": ""
+      }
+    },
+    "identifier": "flesh-to-stone"
   },
   "name": "Flesh to Stone",
   "flags": {
@@ -139,6 +261,12 @@
         "type": "script",
         "scope": "global",
         "command": "if (!game.modules.get(\"dfreds-convenient-effects\")?.active) {\n  ui.notifications.error(\"Please enable the CE module\");\n  return;\n}\n\nconst lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\nconst DAEItem = lastArg.efData.flags.dae.itemData;\nconst saveData = DAEItem.system.save;\n\nif (args[0] === \"on\") {\n  await DAE.setFlag(targetActor, \"fleshToStoneSpell\", {\n    successes: 0,\n    failures: 1,\n    rounds: 1,\n  });\n}\n\nasync function checkPetrification(flag) {\n  const flavor = `${CONFIG.DND5E.abilities[saveData.ability].label} DC${saveData.dc} ${DAEItem?.name || \"\"}`;\n  const saveRoll = await targetActor.rollAbilitySave(saveData.ability, { flavor, fastForward: true });\n\n  if (saveRoll.total < saveData.dc) {\n    flag.failures += 1;\n    await DAE.setFlag(targetActor, \"fleshToStoneSpell\", flag);\n\n    if (flag.failures === 3) {\n      ChatMessage.create({ content: `Flesh To Stone on ${targetActor.name} is complete` });\n      if (!DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(\"Petrified\", targetActor)) {\n        await game.dfreds.effectInterface.addEffect({ effectName: \"Petrified\", uuid: targetActor.uuid });\n      }\n    } else {\n      console.log(`Flesh To Stone failures increments to ${flag.failures} and ${flag.successes}`);\n    }\n  } else if (saveRoll.total >= saveData.dc) {\n    flag.successes += 1;\n    await DAE.setFlag(targetActor, \"fleshToStoneSpell\", flag);\n\n    if (flag.successes === 3) {\n      ChatMessage.create({ content: `Flesh To Stone on ${targetActor.name} ends` });\n      await targetActor.deleteEmbeddedDocuments(\"ActiveEffect\", [lastArg.effectId]);\n    } else {\n      console.log(`Flesh To Stone failures increments to ${flag.failures} and ${flag.successes}`);\n    }\n  }\n}\n\nif (args[0] === \"each\") {\n  let flag = DAE.getFlag(targetActor, \"fleshToStoneSpell\");\n  flag.rounds += 1;\n  if (flag.failures === 3) {\n    await DAE.setFlag(targetActor, \"fleshToStoneSpell\", flag);\n  } else {\n    await checkPetrification(flag);\n  }\n}\n\nif (args[0] === \"off\") {\n  ChatMessage.create({\n    content: `Flesh to stone ends, if concentration was maintained for the entire duration, the creature (${targetActor.name}) is turned to stone until the effect is removed.`,\n  });\n\n  const flag = await DAE.getFlag(targetActor, \"fleshToStoneSpell\");\n  if (flag && flag.rounds < 10) {\n    if (DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(\"Petrified\", targetActor)) {\n      game.dfreds.effectInterface.removeEffect({ effectName: \"Petrified\", uuid: targetActor.uuid });\n    }\n  }\n\n  await DAE.unsetFlag(targetActor, \"fleshToStoneSpell\");\n}\n"
+      }
+    },
+    "dnd5e": {
+      "riders": {
+        "activity": [],
+        "effect": []
       }
     }
   },
@@ -214,10 +342,10 @@
   },
   "_stats": {
     "systemId": "dnd5e",
-    "systemVersion": "3.3.1",
-    "coreVersion": "12.331",
+    "systemVersion": "4.4.2",
+    "coreVersion": "12.343",
     "createdTime": 1721274675505,
-    "modifiedTime": 1730039103862,
+    "modifiedTime": 1748179081333,
     "lastModifiedBy": "6yhz13iFYYklKtgA",
     "compendiumSource": null,
     "duplicateSource": null
