@@ -1,3 +1,6 @@
+# v13.5.1
+- Foundry v13 support
+- Dnd5e v5 support
 # v12.4.0
 - Dnd5e v4 support
 # v12.1.1
